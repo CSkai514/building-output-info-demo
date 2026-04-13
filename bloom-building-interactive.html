@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Bloom Building — Interactive Directory</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+/* ============================================================
+   RESET & BASE
+============================================================ */
+:root {
+    --primary-blur: blur(12px);
+    --card-bg: rgba(255, 255, 255, 0.98);
+    --bg-dark: #0e0e0e;
+    --transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--bg-dark);
+    color: #f0ede8;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2rem 1rem;
+    overflow-x: hidden;
+}
+
+/* ============================================================
+   PAGE HEADER
+============================================================ */
+.page-header {
+    text-align: center;
+    margin-bottom: 3rem;
+    z-index: 10;
+}
+.page-header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #fff;
+}
+.page-header p {
+    font-size: 11px;
+    color: #777;
+    margin-top: 8px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+/* ============================================================
+   SCENE CONTAINER
+============================================================ */
+.scene-wrapper {
+    position: relative;
+    width: 100%;
+    max-width: 1400px; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.image-container {
+    position: relative;
+    width: 100%;
+    max-width: 440px; 
+    border-radius: 24px;
+    box-shadow: 0 50px 100px rgba(0,0,0,0.6);
+    z-index: 5;
+}
+
+#building-img {
+    width: 100%;
+    display: block;
+    border-radius: 24px;
+    filter: brightness(1);
+}
+
+#line-svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    pointer-events: none;
+    z-index: 8;
+    overflow: visible; 
+}
+
+.connector-line {
+    fill: none;
+    stroke-width: 2.5;
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    transition: stroke-dashoffset 0.6s ease;
+    stroke-linecap: round;
+}
+
+.connector-line.active {
+    stroke-dashoffset: 0;
+}
+
+/* ============================================================
+   HOTSPOTS & HOVER ZONES
+============================================================ */
+.floor-hit-zone {
+    position: absolute;
+    left: 25%;
+    width: 50%; 
+    height: 10%; 
+    transform: translateY(-50%);
+    z-index: 15;
+    cursor: pointer;
+}
+
+.hotspot {
+    position: absolute;
+    width: 20px; height: 20px;
+    transform: translate(-50%, -50%);
+    pointer-events: none; 
+    z-index: 20;
+}
+
+.hs-dot {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    box-shadow: 0 0 15px rgba(255,255,255,0.5);
+    transition: var(--transition);
+}
+
+.hs-ring {
+    position: absolute;
+    inset: -8px;
+    border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.4);
+    animation: hs-pulse 2s infinite;
+}
+
+@keyframes hs-pulse {
+    0% { transform: scale(0.6); opacity: 1; }
+    100% { transform: scale(1.6); opacity: 0; }
+}
+
+/* ============================================================
+   INFO CARD (Desktop)
+============================================================ */
+.info-card {
+    position: absolute;
+    width: 320px;
+    background: var(--card-bg);
+    color: #1a1a1a;
+    border-radius: 24px;
+    z-index: 100;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.5);
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.info-card.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+.card-header { padding: 24px 24px 16px; }
+.card-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+}
+.card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.4rem;
+    line-height: 1.2;
+    margin-bottom: 8px;
+}
+.card-level { font-size: 11px; color: #888; margin-bottom: 12px; font-weight: 500; }
+.card-desc { font-size: 13px; color: #555; line-height: 1.6; margin-bottom: 12px; }
+
+/* Website Link Style */
+.website-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    text-decoration: none;
+    color: inherit;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+    margin-bottom: 15px;
+}
+.website-link:hover { opacity: 1; }
+
+.card-bullets {
+    list-style: none;
+    padding: 0 24px 20px;
+}
+.card-bullets li {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 13px;
+    padding: 9px 0;
+    border-bottom: 1px solid #f4f4f4;
+    transform: translateY(10px);
+    opacity: 0;
+    transition: 0.4s ease forwards;
+}
+.info-card.active .card-bullets li { transform: translateY(0); opacity: 1; }
+
+.bul-icon {
+    width: 24px; height: 24px;
+    background: #f0f0f0;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+}
+
+.card-slider {
+    width: 100%;
+    height: 150px;
+    background: #111;
+    position: relative;
+    overflow: hidden;
+}
+.slide {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+    opacity: 0;
+    transition: opacity 0.8s ease;
+}
+.slide.active { opacity: 1; }
+
+.cta-btn {
+    display: block;
+    padding: 20px;
+    text-align: center;
+    text-decoration: none;
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    transition: filter 0.2s;
+}
+
+/* ============================================================
+   MOBILE MODAL
+============================================================ */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.9);
+    backdrop-filter: blur(10px);
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition);
+}
+.modal-overlay.active { opacity: 1; visibility: visible; }
+
+.modal-card {
+    width: 100%;
+    max-width: 400px;
+    background: #fff;
+    border-radius: 30px;
+    position: relative;
+    overflow-y: auto;
+    max-height: 90vh;
+    transform: scale(0.9) translateY(40px);
+    transition: var(--transition);
+}
+.modal-overlay.active .modal-card { transform: scale(1) translateY(0); }
+
+.close-modal {
+    position: absolute;
+    top: 20px; right: 20px;
+    width: 36px; height: 36px;
+    background: rgba(0,0,0,0.08);
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 18px;
+    z-index: 10;
+    display: flex; align-items: center; justify-content: center;
+}
+
+/* ============================================================
+   RESPONSIVE LOGIC
+============================================================ */
+@media (max-width: 1100px) {
+    .info-card { display: none !important; }
+    #line-svg { display: none !important; }
+    .scene-wrapper { min-height: auto; padding: 20px 0; }
+    .floor-hit-zone { width: 80%; left: 10%; pointer-events: auto; }
+}
+</style>
+</head>
+<body>
+
+<div class="page-header">
+    <!-- <p>Premium Medical Excellence</p> -->
+    <h1>Demo</h1>
+</div>
+
+<div class="scene-wrapper" id="scene-wrapper">
+    <div class="image-container" id="image-container">
+        <!-- Building Image -->
+        <img id="building-img" src="assets/your-building-image.jpeg" alt="Bloom Building" />
+        
+        <!-- Hotspots layer -->
+        <div id="hotspots-layer"></div>
+    </div>
+
+    <!-- SVG Connector Line -->
+    <svg id="line-svg">
+        <path id="connector-path" class="connector-line" d=""></path>
+    </svg>
+
+    <!-- Desktop Info Card -->
+    <div class="info-card" id="desktop-card">
+        <div class="card-header">
+            <span class="card-badge" id="d-badge"></span>
+            <h2 class="card-title" id="d-title"></h2>
+            <p class="card-level" id="d-level"></p>
+            <p class="card-desc" id="d-desc"></p>
+            <a href="#" target="_blank" class="website-link" id="d-website">
+                Visit Official Website <span>↗</span>
+            </a>
+        </div>
+        <ul class="card-bullets" id="d-bullets"></ul>
+        <div class="card-slider" id="d-slider"></div>
+        <a href="#" class="cta-btn" id="d-cta">Explore Center</a>
+    </div>
+</div>
+
+<!-- Mobile Popup Modal -->
+<div class="modal-overlay" id="mobile-overlay" onclick="closeMobileModal(event)">
+    <div class="modal-card" id="modal-card">
+        <button class="close-modal" onclick="hideModal()">✕</button>
+        <div class="card-header">
+            <span class="card-badge" id="m-badge"></span>
+            <h2 class="card-title" id="m-title"></h2>
+            <p class="card-level" id="m-level"></p>
+            <p class="card-desc" id="m-desc"></p>
+            <a href="#" target="_blank" class="website-link" id="m-website">
+                Visit Official Website <span>↗</span>
+            </a>
+        </div>
+        <ul class="card-bullets" id="m-bullets"></ul>
+        <div class="card-slider" id="m-slider"></div>
+        <a href="#" class="cta-btn" id="m-cta" style="border-radius: 0 0 30px 30px;">Explore Center</a>
+    </div>
+</div>
+
+<script>
+/* ============================================================
+   FLOOR DATA
+============================================================ */
+const FLOORS = [
+    {
+        id: 'f5',
+        name: 'Antara Spa & Wellness',
+        level: 'Level 5 · Rooftop Retreat',
+        badge: 'Wellness',
+        accent: '#a855f7',
+        desc: 'A serene rooftop sanctuary offering therapeutic healing and massage.',
+        bullets: ['Therapeutic Massage', 'Aromatherapy Suites', 'Detox Packages'],
+        slides: ['https://images.unsplash.com/photo-1544161515-4af6b1d462c2?auto=format&fit=crop&w=400&q=80'],
+        pctTop: 42, pctLeft: 62, 
+        side: 'right', vAlign: 'up',
+        link: 'https://antaraspawellness.com/'
+    },
+    {
+        id: 'f4',
+        name: 'Cantiq Clinic Signature',
+        level: 'Level 4 · Medical Aesthetics',
+        badge: 'Aesthetics',
+        accent: '#3b82f6',
+        desc: 'Premium aesthetic medicine—skin rejuvenation and advanced injectables.',
+        bullets: ['Laser Treatments', 'Skin Analysis', 'Anti-Aging Care'],
+        slides: ['https://images.unsplash.com/photo-1512290923902-8a9f81dc2069?auto=format&fit=crop&w=400&q=80'],
+        pctTop: 52, pctLeft: 62,
+        side: 'right', vAlign: 'up',
+        link: 'https://cantiqclinic.com/'
+    },
+    {
+        id: 'f3',
+        name: 'TRIA Specialist Center',
+        level: 'Level 3 · Specialist Care',
+        badge: 'Specialist',
+        accent: '#22c55e',
+        desc: 'Multi-disciplinary outpatient centre with expert consulting specialists.',
+        bullets: ['Multi-Disciplinary Care', 'Specialist Consults', 'Care Planning'],
+        slides: ['https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=400&q=80'],
+        pctTop: 62, pctLeft: 62,
+        side: 'right', vAlign: 'up',
+        link: 'https://triadentalspecialist.com/'
+    },
+    {
+        id: 'f2',
+        name: 'Bloom Healthcare',
+        level: 'Level 2 · Diagnostics & Lab',
+        badge: 'Healthcare',
+        accent: '#0ea5e9',
+        desc: 'Advanced in-house diagnostic laboratory and screening services.',
+        bullets: ['Diagnostic Lab', 'Health Screenings', 'Quick Results'],
+        slides: ['https://images.unsplash.com/photo-1579152123223-28c002f2fd23?auto=format&fit=crop&w=400&q=80'],
+        pctTop: 73, pctLeft: 62,
+        side: 'right', vAlign: 'up',
+        link: 'https://thebloomhealthcare.com/'
+    },
+    {
+        id: 'f1',
+        name: 'MediPulih Klinik',
+        level: 'Level 1 · Ground Floor',
+        badge: 'General Clinic',
+        accent: '#f97316',
+        desc: 'Walk-in GP clinic open 7 days a week for family medicine and urgent care.',
+        bullets: ['Prescription Pharmacy', 'Family Medicine', 'Urgent Consults'],
+        slides: ['https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=400&q=80'],
+        pctTop: 84, pctLeft: 62,
+        side: 'right', vAlign: 'up',
+        link: 'https://klinikmedipulih.com/'
+    }
+];
+
+const desktopCard = document.getElementById('desktop-card');
+const mobileOverlay = document.getElementById('mobile-overlay');
+const path = document.getElementById('connector-path');
+let isMobile = window.innerWidth <= 1100;
+
+function init() {
+    const container = document.getElementById('hotspots-layer');
+    container.innerHTML = '';
+    FLOORS.forEach(floor => {
+        const hitZone = document.createElement('div');
+        hitZone.className = 'floor-hit-zone';
+        hitZone.style.top = `${floor.pctTop}%`;
+        
+        const hs = document.createElement('div');
+        hs.className = 'hotspot';
+        hs.style.top = `${floor.pctTop}%`;
+        hs.style.left = `${floor.pctLeft}%`;
+        hs.innerHTML = `<div class="hs-ring"></div><div class="hs-dot" style="background:${floor.accent}"></div>`;
+        
+        hitZone.addEventListener('mouseenter', () => { if(!isMobile) showDesktop(floor); });
+        hitZone.addEventListener('click', () => { if(isMobile) showMobile(floor); else showDesktop(floor); });
+        
+        container.appendChild(hitZone);
+        container.appendChild(hs);
+    });
+}
+
+function updateContent(prefix, floor) {
+    document.getElementById(prefix + '-badge').textContent = floor.badge;
+    document.getElementById(prefix + '-badge').style.background = floor.accent + '15';
+    document.getElementById(prefix + '-badge').style.color = floor.accent;
+    document.getElementById(prefix + '-title').textContent = floor.name;
+    document.getElementById(prefix + '-level').textContent = floor.level;
+    document.getElementById(prefix + '-desc').textContent = floor.desc;
+    document.getElementById(prefix + '-cta').style.background = floor.accent;
+    document.getElementById(prefix + '-cta').href = floor.link;
+    document.getElementById(prefix + '-website').href = floor.link;
+    
+    const bullets = document.getElementById(prefix + '-bullets');
+    bullets.innerHTML = floor.bullets.map((b, i) => `
+        <li style="transition-delay: ${i * 0.1}s">
+            <span class="bul-icon" style="color:${floor.accent}">✦</span> ${b}
+        </li>`).join('');
+
+    const slider = document.getElementById(prefix + '-slider');
+    slider.innerHTML = floor.slides.map((img, i) => `
+        <div class="slide ${i === 0 ? 'active' : ''}" style="background-image:url('${img}')"></div>
+    `).join('');
+}
+
+function showDesktop(floor) {
+    updateContent('d', floor);
+    
+    const wrapper = document.getElementById('scene-wrapper');
+    const building = document.getElementById('image-container');
+    const wrapperRect = wrapper.getBoundingClientRect();
+    const buildRect = building.getBoundingClientRect();
+    
+    const hX = (buildRect.left - wrapperRect.left) + (buildRect.width * (floor.pctLeft / 100));
+    const hY = (buildRect.top - wrapperRect.top) + (buildRect.height * (floor.pctTop / 100));
+
+    let cardX, cardY, endX, endY;
+    const cardWidth = 320;
+    const gap = 80;
+
+    if (floor.side === 'left') {
+        cardX = (buildRect.left - wrapperRect.left) - cardWidth - gap;
+        endX = cardX + cardWidth; 
+    } else {
+        cardX = (buildRect.right - wrapperRect.left) + gap;
+        endX = cardX; 
+    }
+
+    if (floor.vAlign === 'up') {
+        cardY = hY - 380; 
+        endY = cardY + 360; 
+    } else {
+        cardY = hY - 40; 
+        endY = cardY + 40; 
+    }
+
+    desktopCard.style.left = `${cardX}px`;
+    desktopCard.style.top = `${cardY}px`;
+    desktopCard.classList.add('active');
+
+    const controlPointX = hX + (endX - hX) * 0.5;
+    const d = `M ${hX} ${hY} Q ${controlPointX} ${hY} ${endX} ${endY}`;
+    
+    path.setAttribute('d', d);
+    path.setAttribute('stroke', floor.accent);
+    path.classList.add('active');
+}
+
+function showMobile(floor) {
+    updateContent('m', floor);
+    mobileOverlay.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function hideModal() {
+    mobileOverlay.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function closeMobileModal(e) {
+    if(e.target === mobileOverlay) hideModal();
+}
+
+window.addEventListener('resize', () => {
+    isMobile = window.innerWidth <= 1100;
+    desktopCard.classList.remove('active');
+    path.classList.remove('active');
+    init(); 
+});
+
+document.addEventListener('mousemove', (e) => {
+    if(!isMobile) {
+        const wrapper = document.getElementById('scene-wrapper');
+        const card = document.getElementById('desktop-card');
+        const rectW = wrapper.getBoundingClientRect();
+        const rectC = card.getBoundingClientRect();
+        
+        const isOverWrapper = e.clientX >= rectW.left && e.clientX <= rectW.right && e.clientY >= rectW.top && e.clientY <= rectW.bottom;
+        const isOverCard = e.clientX >= rectC.left && e.clientX <= rectC.right && e.clientY >= rectC.top && e.clientY <= rectC.bottom;
+        
+        if (!isOverWrapper && !isOverCard) {
+            desktopCard.classList.remove('active');
+            path.classList.remove('active');
+        }
+    }
+});
+
+window.onload = init;
+</script>
+</body>
+</html>
