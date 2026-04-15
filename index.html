@@ -3,30 +3,26 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Bloom Building — Interactive Directory</title>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600&family=Playfair+Display:wght@500;600&display=swap" rel="stylesheet" />
+<title>Bloom Healthcare Group</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet" />
 <style>
 /* ============================================================
    RESET & BASE
 ============================================================ */
 :root {
-    --primary-blur: blur(12px);
-    --card-bg: rgba(255, 255, 255, 0.98);
-    --bg-dark: #0e0e0e;
-    --transition: all 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    background: var(--bg-dark);
-    color: #f0ede8;
+    background: #0a0a0a;
+    color: #fff;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 2rem 1rem;
     overflow-x: hidden;
 }
 
@@ -34,57 +30,62 @@ body {
    PAGE HEADER
 ============================================================ */
 .page-header {
+    width: 100%;
     text-align: center;
-    margin-bottom: 3rem;
+    padding: 2.5rem 1rem 1.5rem;
     z-index: 10;
+    position: relative;
 }
 .page-header h1 {
     font-family: 'Playfair Display', serif;
-    font-size: clamp(1.8rem, 5vw, 2.8rem);
+    font-size: clamp(1.8rem, 4vw, 2.4rem);
     font-weight: 600;
     letter-spacing: -0.01em;
     color: #fff;
 }
 .page-header p {
     font-size: 11px;
-    color: #777;
-    margin-top: 8px;
-    letter-spacing: 3px;
+    color: #999;
+    margin-bottom: 5px;
+    letter-spacing: 2px;
     text-transform: uppercase;
 }
 
 /* ============================================================
-   SCENE CONTAINER
+   SCENE CONTAINER (BACKGROUND IMAGE)
 ============================================================ */
 .scene-wrapper {
     position: relative;
     width: 100%;
-    max-width: 1400px; 
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.image-container {
-    position: relative;
-    width: 100%;
-    max-width: 440px; 
+    max-width: 1200px; 
+    /* Fits the screen precisely */
+    height: calc(100vh - 160px); 
+    min-height: 600px; 
     border-radius: 24px;
-    box-shadow: 0 50px 100px rgba(0,0,0,0.6);
-    z-index: 5;
+    box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+    overflow: hidden;
+    margin: 0 20px 40px;
 }
 
 #building-img {
+    position: absolute;
+    inset: 0;
     width: 100%;
-    display: block;
-    border-radius: 24px;
-    filter: brightness(1);
+    height: 100%;
+    object-fit: cover;
+    object-position: center; 
+    filter: brightness(0.85) contrast(1.1);
+    z-index: 1;
 }
 
+/* ============================================================
+   SVG LINE LAYER
+============================================================ */
 #line-svg {
     position: absolute;
-    top: 0; left: 0;
-    width: 100%; height: 100%;
+    inset: 0;
+    width: 100%; 
+    height: 100%;
     pointer-events: none;
     z-index: 8;
     overflow: visible; 
@@ -93,168 +94,231 @@ body {
 .connector-line {
     fill: none;
     stroke-width: 2.5;
-    stroke-dasharray: 1000;
-    stroke-dashoffset: 1000;
-    transition: stroke-dashoffset 0.6s ease;
     stroke-linecap: round;
-}
-
-.connector-line.active {
-    stroke-dashoffset: 0;
+    filter: drop-shadow(0 0 5px rgba(255,255,255,0.4));
+    /* Transition is handled by JavaScript for the drawing effect */
 }
 
 /* ============================================================
-   HOTSPOTS & HOVER ZONES
+   ABSOLUTE HOTSPOTS (LOGOS ON BUILDING)
 ============================================================ */
-.floor-hit-zone {
+#hotspots-layer {
     position: absolute;
-    left: 25%;
-    width: 50%; 
-    height: 10%; 
-    transform: translateY(-50%);
+    inset: 0;
     z-index: 15;
-    cursor: pointer;
+    pointer-events: none; 
 }
 
 .hotspot {
     position: absolute;
-    width: 20px; height: 20px;
-    transform: translate(-50%, -50%);
-    pointer-events: none; 
-    z-index: 20;
-}
-
-.hs-dot {
-    width: 100%; height: 100%;
-    border-radius: 50%;
-    border: 3px solid #fff;
-    box-shadow: 0 0 15px rgba(255,255,255,0.5);
-    transition: var(--transition);
-}
-
-.hs-ring {
-    position: absolute;
-    inset: -8px;
-    border-radius: 50%;
-    border: 2px solid rgba(255,255,255,0.4);
-    animation: hs-pulse 2s infinite;
-}
-
-@keyframes hs-pulse {
-    0% { transform: scale(0.6); opacity: 1; }
-    100% { transform: scale(1.6); opacity: 0; }
-}
-
-/* ============================================================
-   INFO CARD (Desktop)
-============================================================ */
-.info-card {
-    position: absolute;
-    width: 320px;
-    background: var(--card-bg);
-    color: #1a1a1a;
-    border-radius: 24px;
-    z-index: 100;
-    opacity: 0;
-    visibility: hidden;
-    transition: var(--transition);
-    box-shadow: 0 40px 80px rgba(0,0,0,0.5);
-    overflow: hidden;
-    pointer-events: none;
-}
-
-.info-card.active {
-    opacity: 1;
-    visibility: visible;
+    transform: translate(-50%, -50%); 
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
     pointer-events: auto;
 }
 
-.card-header { padding: 24px 24px 16px; }
-.card-badge {
-    display: inline-block;
-    font-size: 10px;
-    font-weight: 700;
-    padding: 4px 12px;
-    border-radius: 20px;
-    text-transform: uppercase;
-    margin-bottom: 12px;
+/* Hit Area for larger hover triggering */
+.hit-area {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 0;
 }
-.card-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 1.4rem;
-    line-height: 1.2;
-    margin-bottom: 8px;
-}
-.card-level { font-size: 11px; color: #888; margin-bottom: 12px; font-weight: 500; }
-.card-desc { font-size: 13px; color: #555; line-height: 1.6; margin-bottom: 12px; }
 
-/* Website Link Style */
-.website-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    font-weight: 600;
-    text-decoration: none;
-    color: inherit;
-    opacity: 0.7;
-    transition: opacity 0.2s;
-    margin-bottom: 15px;
+.hover-logo {
+    object-fit: contain;
+    transition: var(--transition);
+    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
+    position: relative;
+    z-index: 2;
 }
-.website-link:hover { opacity: 1; }
 
-.card-bullets {
-    list-style: none;
-    padding: 0 24px 20px;
-}
-.card-bullets li {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    font-size: 13px;
-    padding: 9px 0;
-    border-bottom: 1px solid #f4f4f4;
-    transform: translateY(10px);
-    opacity: 0;
-    transition: 0.4s ease forwards;
-}
-.info-card.active .card-bullets li { transform: translateY(0); opacity: 1; }
-
-.bul-icon {
-    width: 24px; height: 24px;
-    background: #f0f0f0;
+.menu-dot {
+    width: 14px;
+    height: 14px;
+    background: #fff;
     border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 11px;
+    box-shadow: 0 0 12px rgba(255,255,255,0.8);
+    transform: scale(0);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    flex-shrink: 0;
+    position: relative;
+    z-index: 2;
 }
 
+/* Hover Interaction */
+.hotspot:hover .hover-logo, .hotspot.active .hover-logo {
+    transform: scale(1.15);
+    filter: drop-shadow(0 8px 15px rgba(0,0,0,0.9));
+}
+
+.hotspot:hover .menu-dot, .hotspot.active .menu-dot {
+    transform: scale(1);
+    opacity: 1;
+}
+
+/* ============================================================
+   CONTENT CARD (Desktop - Absolute Positioned)
+============================================================ */
+.content-card {
+    position: absolute;
+    width: 400px;
+    border-radius: 24px;
+    padding: 35px 40px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    pointer-events: none;
+    opacity: 0;
+    visibility: hidden;
+    /* Card slides in slightly from the side */
+    transform: translateX(20px); 
+    transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
+    box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    z-index: 20;
+}
+
+.content-card.active {
+    opacity: 1;
+    visibility: visible;
+    transform: translateX(0);
+    pointer-events: auto;
+}
+
+/* Dynamic Card Colors */
+.content-card, .modal-content {
+    color: var(--card-text, #fff);
+    border: 1px solid var(--card-border, rgba(255,255,255,0.15));
+}
+.c-desc {
+    color: var(--card-desc, rgba(255,255,255,0.9));
+}
+.c-link {
+    background: var(--card-btn-bg, #fff);
+    color: var(--card-btn-text, #000);
+}
+.close-btn {
+    background: var(--card-border, rgba(0,0,0,0.1));
+    color: var(--card-text, #fff);
+    border-color: var(--card-border, rgba(255,255,255,0.2));
+}
+.close-btn:hover { 
+    background: var(--card-text, #fff); 
+    color: var(--card-btn-bg, #000); 
+}
+
+.close-btn {
+    position: absolute;
+    top: 20px; right: 20px;
+    width: 32px; height: 32px;
+    border-radius: 50%;
+    font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    z-index: 10;
+}
+
+.c-logo-container {
+    margin-bottom: 20px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--card-border, rgba(255,255,255,0.2));
+    width: 100%;
+}
+
+.c-desc {
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 25px;
+    font-weight: 400;
+}
+
+/* ============================================================
+   SLIDESHOW GALLERY
+============================================================ */
 .card-slider {
     width: 100%;
-    height: 150px;
-    background: #111;
+    height: 160px;
     position: relative;
+    border-radius: 16px;
     overflow: hidden;
+    margin-bottom: 25px;
+    background: rgba(0,0,0,0.1);
+    box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
+    border: 1px solid var(--card-border, rgba(255,255,255,0.1));
 }
+
 .slide {
     position: absolute;
     inset: 0;
-    background-size: cover;
-    background-position: center;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     opacity: 0;
-    transition: opacity 0.8s ease;
+    transition: opacity 0.8s ease-in-out;
 }
 .slide.active { opacity: 1; }
 
-.cta-btn {
-    display: block;
-    padding: 20px;
-    text-align: center;
-    text-decoration: none;
+.slider-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(0,0,0,0.4);
     color: #fff;
-    font-weight: 600;
-    font-size: 14px;
-    transition: filter 0.2s;
+    border: 1px solid rgba(255,255,255,0.2);
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px;
+    z-index: 5;
+    transition: all 0.2s;
 }
+.slider-btn:hover { background: rgba(0,0,0,0.8); transform: translateY(-50%) scale(1.1); }
+.slider-btn.prev { left: 10px; }
+.slider-btn.next { right: 10px; }
+
+.slider-pagination {
+    position: absolute;
+    bottom: 12px;
+    left: 0; width: 100%;
+    display: flex; justify-content: center; gap: 6px;
+    z-index: 5;
+}
+.slider-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.slider-dot:hover { background: rgba(255,255,255,0.8); }
+.slider-dot.active { background: #fff; transform: scale(1.3); }
+
+/* ============================================================
+   BUTTON
+============================================================ */
+.c-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 14px 32px;
+    border-radius: 30px;
+    font-weight: 600;
+    font-size: 13px;
+    text-decoration: none;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: all 0.3s;
+}
+.c-link:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
 
 /* ============================================================
    MOBILE MODAL
@@ -262,314 +326,522 @@ body {
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.9);
-    backdrop-filter: blur(10px);
+    background: rgba(0,0,0,0.8);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
     z-index: 1000;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 20px;
     opacity: 0;
     visibility: hidden;
-    transition: var(--transition);
+    transition: all 0.4s ease;
 }
 .modal-overlay.active { opacity: 1; visibility: visible; }
 
-.modal-card {
-    width: 100%;
+.modal-content {
+    width: 90%;
     max-width: 400px;
-    background: #fff;
-    border-radius: 30px;
+    border-radius: 24px;
+    padding: 40px 30px 35px;
+    text-align: center;
     position: relative;
-    overflow-y: auto;
-    max-height: 90vh;
-    transform: scale(0.9) translateY(40px);
+    transform: translateY(30px) scale(0.95);
     transition: var(--transition);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
 }
-.modal-overlay.active .modal-card { transform: scale(1) translateY(0); }
+.modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
 
-.close-modal {
+.nav-arrow {
     position: absolute;
-    top: 20px; right: 20px;
-    width: 36px; height: 36px;
-    background: rgba(0,0,0,0.08);
+    top: 50%;
+    transform: translateY(-50%);
     border-radius: 50%;
-    border: none;
+    width: 36px; height: 36px;
+    font-size: 16px;
     cursor: pointer;
-    font-size: 18px;
-    z-index: 10;
     display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    z-index: 10;
+    background: var(--card-border, rgba(0,0,0,0.2));
+    border: 1px solid var(--card-border, rgba(255,255,255,0.2));
+    color: var(--card-text, #fff);
 }
+.nav-arrow:hover { background: var(--card-border, rgba(0,0,0,0.4)); }
+.nav-arrow.prev { left: 15px; }
+.nav-arrow.next { right: 15px; }
 
 /* ============================================================
    RESPONSIVE LOGIC
 ============================================================ */
-@media (max-width: 1100px) {
-    .info-card { display: none !important; }
+@media (max-width: 900px) {
+    .scene-wrapper {
+        margin: 0 10px 20px;
+        height: auto; 
+        min-height: 600px;
+    }
     #line-svg { display: none !important; }
-    .scene-wrapper { min-height: auto; padding: 20px 0; }
-    .floor-hit-zone { width: 80%; left: 10%; pointer-events: auto; }
+    .content-card { display: none !important; }
 }
 </style>
 </head>
 <body>
 
 <div class="page-header">
-    <!-- <p>Premium Medical Excellence</p> -->
-    <h1>Demo</h1>
+    <p>subsidiary of Salcon Berhad</p>
+    <h1>Bloom Healthcare</h1>
 </div>
 
 <div class="scene-wrapper" id="scene-wrapper">
-    <div class="image-container" id="image-container">
-        <!-- Building Image -->
-        <img id="building-img" src="assets/your-building-image.jpeg" alt="Bloom Building" />
-        
-        <!-- Hotspots layer -->
-        <div id="hotspots-layer"></div>
-    </div>
-
+    <!-- Building Image Background -->
+    <img id="building-img" src="assets/photo_2026-04-16_01-22-11.jpg" alt="Bloom Building" />
+    
     <!-- SVG Connector Line -->
     <svg id="line-svg">
         <path id="connector-path" class="connector-line" d=""></path>
     </svg>
 
-    <!-- Desktop Info Card -->
-    <div class="info-card" id="desktop-card">
-        <div class="card-header">
-            <span class="card-badge" id="d-badge"></span>
-            <h2 class="card-title" id="d-title"></h2>
-            <p class="card-level" id="d-level"></p>
-            <p class="card-desc" id="d-desc"></p>
-            <a href="#" target="_blank" class="website-link" id="d-website">
-                Visit Official Website <span>↗</span>
-            </a>
+    <!-- Hotspots (Logos) Layer -->
+    <div id="hotspots-layer"></div>
+
+    <!-- Desktop Info Card (Absolute Positioned via JS) -->
+    <div class="content-card" id="desktop-card">
+        <button class="close-btn" onclick="closeDesktopCard()">✕</button>
+        <div class="c-logo-container">
+            <!-- Styling logic applied via Javascript to control width precisely -->
+            <img id="d-logo" src="" alt="Company Logo" style="object-fit: contain; max-width: 100%;" />
         </div>
-        <ul class="card-bullets" id="d-bullets"></ul>
+        <p class="c-desc" id="d-desc"></p>
+        
+        <!-- SLIDESHOW GALLERY -->
         <div class="card-slider" id="d-slider"></div>
-        <a href="#" class="cta-btn" id="d-cta">Explore Center</a>
+
+        <a href="#" target="_blank" class="c-link" id="d-link">
+            Visit Our Website <span>↗</span>
+        </a>
     </div>
 </div>
 
 <!-- Mobile Popup Modal -->
 <div class="modal-overlay" id="mobile-overlay" onclick="closeMobileModal(event)">
-    <div class="modal-card" id="modal-card">
-        <button class="close-modal" onclick="hideModal()">✕</button>
-        <div class="card-header">
-            <span class="card-badge" id="m-badge"></span>
-            <h2 class="card-title" id="m-title"></h2>
-            <p class="card-level" id="m-level"></p>
-            <p class="card-desc" id="m-desc"></p>
-            <a href="#" target="_blank" class="website-link" id="m-website">
-                Visit Official Website <span>↗</span>
-            </a>
+    <div class="modal-content" id="modal-card">
+        <!-- Close & Arrows -->
+        <button class="close-btn" onclick="hideModal()" style="top:15px; right:15px;">✕</button>
+        <button class="nav-arrow prev" onclick="navigateMobile(-1)">❮</button>
+        <button class="nav-arrow next" onclick="navigateMobile(1)">❯</button>
+
+        <div class="c-logo-container">
+            <img id="m-logo" src="" alt="Company Logo" style="object-fit: contain; max-width: 100%;" />
         </div>
-        <ul class="card-bullets" id="m-bullets"></ul>
+        <p class="c-desc" id="m-desc"></p>
+        
+        <!-- SLIDESHOW GALLERY -->
         <div class="card-slider" id="m-slider"></div>
-        <a href="#" class="cta-btn" id="m-cta" style="border-radius: 0 0 30px 30px;">Explore Center</a>
+
+        <a href="#" target="_blank" class="c-link" id="m-link">
+            Visit Our Website <span>↗</span>
+        </a>
     </div>
 </div>
 
 <script>
 /* ============================================================
-   FLOOR DATA
+   DATA (5 Companies)
+   - You can now adjust `cardOffsetX` and `cardOffsetY` to manually 
+     nudge the popup card's position for each specific logo! 
 ============================================================ */
-const FLOORS = [
+const DATA = [
     {
-        id: 'f5',
         name: 'Antara Spa & Wellness',
-        level: 'Level 5 · Rooftop Retreat',
-        badge: 'Wellness',
-        accent: '#a855f7',
-        desc: 'A serene rooftop sanctuary offering therapeutic healing and massage.',
-        bullets: ['Therapeutic Massage', 'Aromatherapy Suites', 'Detox Packages'],
-        slides: ['https://images.unsplash.com/photo-1544161515-4af6b1d462c2?auto=format&fit=crop&w=400&q=80'],
-        pctTop: 42, pctLeft: 62, 
-        side: 'right', vAlign: 'up',
-        link: 'https://antaraspawellness.com/'
+        logoSrc: 'assets/company_logo/250320-antara-logo.webp', 
+        hotspotLogoWidth: '230px', 
+        cardLogoWidth: '160px',    
+        hitAreaWidth: '320px',     
+        hitAreaHeight: '100px',    
+        desc: "Antara is a wellness spa for your peaceful escape.<br>A calm pause between life's busy moments.<br>Where relaxation meets renewal.",
+        link: 'https://antaraspawellness.com/',
+        images: [
+            'https://placehold.co/400x250/20351E/ffffff?text=Antara+Interior+1',
+            'https://placehold.co/400x250/20351E/ffffff?text=Antara+Interior+2',
+            'https://placehold.co/400x250/20351E/ffffff?text=Antara+Interior+3'
+        ],
+        bgGradient: 'rgba(32, 53, 30, 0.95)', 
+        textColor: '#ffffff', descColor: 'rgba(255, 255, 255, 0.9)', 
+        btnBg: '#ffffff', btnText: '#20351E', borderColor: 'rgba(255, 255, 255, 0.2)',
+        pctTop: 28, pctLeft: 51, side: 'left', vAlign: 'down',
+        cardOffsetX: -80, // <-- Nudge card Left/Right (e.g. -50 or 50)
+        cardOffsetY: 0  // <-- Nudge card Up/Down (e.g. -50 or 50)
     },
     {
-        id: 'f4',
         name: 'Cantiq Clinic Signature',
-        level: 'Level 4 · Medical Aesthetics',
-        badge: 'Aesthetics',
-        accent: '#3b82f6',
-        desc: 'Premium aesthetic medicine—skin rejuvenation and advanced injectables.',
-        bullets: ['Laser Treatments', 'Skin Analysis', 'Anti-Aging Care'],
-        slides: ['https://images.unsplash.com/photo-1512290923902-8a9f81dc2069?auto=format&fit=crop&w=400&q=80'],
-        pctTop: 52, pctLeft: 62,
-        side: 'right', vAlign: 'up',
-        link: 'https://cantiqclinic.com/'
+        logoSrc: 'assets/company_logo/250320-cantiq-logo.webp', 
+        hotspotLogoWidth: '205px', 
+        cardLogoWidth: '170px',    
+        hitAreaWidth: '380px',     
+        hitAreaHeight: '100px',    
+        desc: "Elevate your natural beauty.<br>Glow effortlessly with Cantiq Clinic.<br>Feel Cantik, Be Cantik.",
+        link: 'https://cantiqclinic.com/',
+        images: [
+            'https://placehold.co/400x250/EDE4BC/1a1a1a?text=Cantiq+Interior+1',
+            'https://placehold.co/400x250/EDE4BC/1a1a1a?text=Cantiq+Interior+2',
+            'https://placehold.co/400x250/EDE4BC/1a1a1a?text=Cantiq+Interior+3'
+        ],
+        bgGradient: 'rgba(237, 228, 188, 0.95)', 
+        textColor: '#1a1a1a', descColor: 'rgba(0, 0, 0, 0.7)', 
+        btnBg: '#1a1a1a', btnText: '#ffffff', borderColor: 'rgba(0, 0, 0, 0.1)',
+        pctTop: 43, pctLeft: 52, side: 'left', vAlign: 'up',
+        cardOffsetX: -80, 
+        cardOffsetY: 0
     },
     {
-        id: 'f3',
-        name: 'TRIA Specialist Center',
-        level: 'Level 3 · Specialist Care',
-        badge: 'Specialist',
-        accent: '#22c55e',
-        desc: 'Multi-disciplinary outpatient centre with expert consulting specialists.',
-        bullets: ['Multi-Disciplinary Care', 'Specialist Consults', 'Care Planning'],
-        slides: ['https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&w=400&q=80'],
-        pctTop: 62, pctLeft: 62,
-        side: 'right', vAlign: 'up',
-        link: 'https://triadentalspecialist.com/'
+        name: 'TRIA Dental Specialist',
+        logoSrc: 'assets/company_logo/tria-dental-logo-small-no-bg.png', 
+        hotspotLogoWidth: '95px', 
+        cardLogoWidth: '140px',    
+        hitAreaWidth: '200px',     
+        hitAreaHeight: '100px',    
+        desc: "TRIA Dental Specialist Centre, where a team of highly<br>trained specialists is committed to safeguarding your oral<br>health and enhancing your well-being.",
+        link: 'https://triadentalspecialist.com/',
+        images: [
+            'https://placehold.co/400x250/4DE2DE/1a1a1a?text=TRIA+Interior+1',
+            'https://placehold.co/400x250/EFCE9A/1a1a1a?text=TRIA+Interior+2',
+            'https://placehold.co/400x250/C4A9DB/1a1a1a?text=TRIA+Interior+3'
+        ],
+        bgGradient: 'linear-gradient(135deg, rgba(77,226,222,0.95), rgba(252,253,253,0.95), rgba(239,206,154,0.95), rgba(196,169,219,0.95))', 
+        textColor: '#1a1a1a', descColor: 'rgba(0, 0, 0, 0.7)', 
+        btnBg: '#1a1a1a', btnText: '#ffffff', borderColor: 'rgba(0, 0, 0, 0.15)',
+        pctTop: 58, pctLeft: 52, side: 'left', vAlign: 'up',
+        cardOffsetX: -80, 
+        cardOffsetY: 0
     },
     {
-        id: 'f2',
-        name: 'Bloom Healthcare',
-        level: 'Level 2 · Diagnostics & Lab',
-        badge: 'Healthcare',
-        accent: '#0ea5e9',
-        desc: 'Advanced in-house diagnostic laboratory and screening services.',
-        bullets: ['Diagnostic Lab', 'Health Screenings', 'Quick Results'],
-        slides: ['https://images.unsplash.com/photo-1579152123223-28c002f2fd23?auto=format&fit=crop&w=400&q=80'],
-        pctTop: 73, pctLeft: 62,
-        side: 'right', vAlign: 'up',
-        link: 'https://thebloomhealthcare.com/'
+        name: 'Florus Academy',
+        logoSrc: 'https://placehold.co/200x50/FFFFFF/1a1a1a?text=Florus+Logo', 
+        hotspotLogoWidth: '150px', 
+        cardLogoWidth: '160px',    
+        hitAreaWidth: '250px',     
+        hitAreaHeight: '100px',    
+        desc: "Florus Academy is our dedicated training hub, where<br>continuous learning ensures a seamless blend of health,<br>beauty, and wellness for every customer.",
+        link: 'https://florusacademy.com/',
+        images: [
+            'https://placehold.co/400x250/cccccc/1a1a1a?text=Florus+Interior+1',
+            'https://placehold.co/400x250/cccccc/1a1a1a?text=Florus+Interior+2',
+            'https://placehold.co/400x250/cccccc/1a1a1a?text=Florus+Interior+3'
+        ],
+        bgGradient: 'rgba(255, 255, 255, 0.91)', 
+        textColor: '#1a1a1a', descColor: 'rgba(0, 0, 0, 0.7)', 
+        btnBg: '#1a1a1a', btnText: '#ffffff', borderColor: 'rgba(0, 0, 0, 0.1)',
+        pctTop: 71, pctLeft: 51, side: 'left', vAlign: 'up',
+        cardOffsetX: -80, 
+        cardOffsetY: 0
     },
     {
-        id: 'f1',
-        name: 'MediPulih Klinik',
-        level: 'Level 1 · Ground Floor',
-        badge: 'General Clinic',
-        accent: '#f97316',
-        desc: 'Walk-in GP clinic open 7 days a week for family medicine and urgent care.',
-        bullets: ['Prescription Pharmacy', 'Family Medicine', 'Urgent Consults'],
-        slides: ['https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&w=400&q=80'],
-        pctTop: 84, pctLeft: 62,
-        side: 'right', vAlign: 'up',
-        link: 'https://klinikmedipulih.com/'
+        name: 'MediPulih',
+        logoSrc: 'assets/company_logo/250320-medipulih-logo.webp', 
+        hotspotLogoWidth: '190px', 
+        cardLogoWidth: '160px',    
+        hitAreaWidth: '280px',     
+        hitAreaHeight: '100px',    
+        desc: "Compassionate care, comprehensive screening,<br>personalised treatment, all under one roof.",
+        link: 'https://klinikmedipulih.com/',
+        images: [
+            'https://placehold.co/400x250/dddddd/1a1a1a?text=MediPulih+Interior+1',
+            'https://placehold.co/400x250/dddddd/1a1a1a?text=MediPulih+Interior+2',
+            'https://placehold.co/400x250/dddddd/1a1a1a?text=MediPulih+Interior+3'
+        ],
+        bgGradient: 'rgba(255, 255, 255, 0.95)', 
+        textColor: '#1a1a1a', descColor: 'rgba(0, 0, 0, 0.7)', 
+        btnBg: '#1a1a1a', btnText: '#ffffff', borderColor: 'rgba(0, 0, 0, 0.1)',
+        pctTop: 87, pctLeft: 51, side: 'left', vAlign: 'up',
+        cardOffsetX: -80, 
+        cardOffsetY: -80 // <-- Example: Bumped up by 80px so it doesn't fall off the screen
     }
 ];
 
+const container = document.getElementById('hotspots-layer');
 const desktopCard = document.getElementById('desktop-card');
 const mobileOverlay = document.getElementById('mobile-overlay');
+const modalCard = document.getElementById('modal-card');
 const path = document.getElementById('connector-path');
-let isMobile = window.innerWidth <= 1100;
+const wrapper = document.getElementById('scene-wrapper');
 
+let isMobile = window.innerWidth <= 900;
+let activeIndex = -1;
+let slideInterval; 
+
+/* Initialize Absolute Logos on Building */
 function init() {
-    const container = document.getElementById('hotspots-layer');
     container.innerHTML = '';
-    FLOORS.forEach(floor => {
-        const hitZone = document.createElement('div');
-        hitZone.className = 'floor-hit-zone';
-        hitZone.style.top = `${floor.pctTop}%`;
-        
+    DATA.forEach((floor, index) => {
         const hs = document.createElement('div');
         hs.className = 'hotspot';
+        hs.id = `hotspot-${index}`;
         hs.style.top = `${floor.pctTop}%`;
         hs.style.left = `${floor.pctLeft}%`;
-        hs.innerHTML = `<div class="hs-ring"></div><div class="hs-dot" style="background:${floor.accent}"></div>`;
         
-        hitZone.addEventListener('mouseenter', () => { if(!isMobile) showDesktop(floor); });
-        hitZone.addEventListener('click', () => { if(isMobile) showMobile(floor); else showDesktop(floor); });
+        const dotHTML = `<div class="menu-dot"></div>`;
         
-        container.appendChild(hitZone);
+        // Added the invisible ".hit-area" with settings mapped to your DATA array
+        hs.innerHTML = `
+            <div class="hit-area" style="width: ${floor.hitAreaWidth || '200px'}; height: ${floor.hitAreaHeight || '100px'};"></div>
+            ${floor.side === 'left' ? dotHTML : ''}
+            <img src="${floor.logoSrc}" class="hover-logo" alt="${floor.name}" onerror="this.style.display='none'" style="width: ${floor.hotspotLogoWidth || '150px'}; height: auto; max-width: none; max-height: none;" />
+            ${floor.side === 'right' ? dotHTML : ''}
+        `;
+        
+        hs.addEventListener('mouseenter', () => { if(!isMobile) showDesktop(index); });
+        hs.addEventListener('click', () => { if(isMobile) showMobile(index); else showDesktop(index); });
+        
         container.appendChild(hs);
     });
 }
 
-function updateContent(prefix, floor) {
-    document.getElementById(prefix + '-badge').textContent = floor.badge;
-    document.getElementById(prefix + '-badge').style.background = floor.accent + '15';
-    document.getElementById(prefix + '-badge').style.color = floor.accent;
-    document.getElementById(prefix + '-title').textContent = floor.name;
-    document.getElementById(prefix + '-level').textContent = floor.level;
-    document.getElementById(prefix + '-desc').textContent = floor.desc;
-    document.getElementById(prefix + '-cta').style.background = floor.accent;
-    document.getElementById(prefix + '-cta').href = floor.link;
-    document.getElementById(prefix + '-website').href = floor.link;
-    
-    const bullets = document.getElementById(prefix + '-bullets');
-    bullets.innerHTML = floor.bullets.map((b, i) => `
-        <li style="transition-delay: ${i * 0.1}s">
-            <span class="bul-icon" style="color:${floor.accent}">✦</span> ${b}
-        </li>`).join('');
-
-    const slider = document.getElementById(prefix + '-slider');
-    slider.innerHTML = floor.slides.map((img, i) => `
-        <div class="slide ${i === 0 ? 'active' : ''}" style="background-image:url('${img}')"></div>
-    `).join('');
+function applyCardStyles(card, data) {
+    card.style.background = data.bgGradient;
+    card.style.setProperty('--card-text', data.textColor);
+    card.style.setProperty('--card-desc', data.descColor);
+    card.style.setProperty('--card-btn-bg', data.btnBg);
+    card.style.setProperty('--card-btn-text', data.btnText);
+    card.style.setProperty('--card-border', data.borderColor);
 }
 
-function showDesktop(floor) {
-    updateContent('d', floor);
+function startSlideshow(prefix, data) {
+    clearInterval(slideInterval);
+    const slider = document.getElementById(prefix + '-slider');
     
-    const wrapper = document.getElementById('scene-wrapper');
-    const building = document.getElementById('image-container');
-    const wrapperRect = wrapper.getBoundingClientRect();
-    const buildRect = building.getBoundingClientRect();
+    if (!data.images || data.images.length === 0) {
+        slider.style.display = 'none';
+        return;
+    }
     
-    const hX = (buildRect.left - wrapperRect.left) + (buildRect.width * (floor.pctLeft / 100));
-    const hY = (buildRect.top - wrapperRect.top) + (buildRect.height * (floor.pctTop / 100));
+    slider.style.display = 'block';
+    const numSlides = data.images.length;
+    let currentSlide = 0;
 
-    let cardX, cardY, endX, endY;
-    const cardWidth = 320;
-    const gap = 80;
-
-    if (floor.side === 'left') {
-        cardX = (buildRect.left - wrapperRect.left) - cardWidth - gap;
-        endX = cardX + cardWidth; 
-    } else {
-        cardX = (buildRect.right - wrapperRect.left) + gap;
-        endX = cardX; 
+    let html = data.images.map((img, i) => `
+        <img src="${img}" class="slide ${i === 0 ? 'active' : ''}" alt="${data.name} Interior" />
+    `).join('');
+    
+    if (numSlides > 1) {
+        html += `
+            <button class="slider-btn prev">❮</button>
+            <button class="slider-btn next">❯</button>
+            <div class="slider-pagination">
+                ${data.images.map((_, i) => `<span class="slider-dot ${i === 0 ? 'active' : ''}"></span>`).join('')}
+            </div>
+        `;
     }
-
-    if (floor.vAlign === 'up') {
-        cardY = hY - 380; 
-        endY = cardY + 360; 
-    } else {
-        cardY = hY - 40; 
-        endY = cardY + 40; 
+    
+    slider.innerHTML = html;
+    
+    if (numSlides > 1) {
+        const slides = slider.querySelectorAll('.slide');
+        const dots = slider.querySelectorAll('.slider-dot');
+        const btnPrev = slider.querySelector('.slider-btn.prev');
+        const btnNext = slider.querySelector('.slider-btn.next');
+        
+        function goToSlide(n) {
+            slides[currentSlide].classList.remove('active');
+            dots[currentSlide].classList.remove('active');
+            
+            currentSlide = (n + numSlides) % numSlides;
+            
+            slides[currentSlide].classList.add('active');
+            dots[currentSlide].classList.add('active');
+            resetInterval();
+        }
+        
+        btnPrev.addEventListener('click', (e) => { e.preventDefault(); goToSlide(currentSlide - 1); });
+        btnNext.addEventListener('click', (e) => { e.preventDefault(); goToSlide(currentSlide + 1); });
+        dots.forEach((dot, i) => dot.addEventListener('click', (e) => { e.preventDefault(); goToSlide(i); }));
+        
+        function resetInterval() {
+            clearInterval(slideInterval);
+            slideInterval = setInterval(() => {
+                goToSlide(currentSlide + 1);
+            }, 3000);
+        }
+        
+        resetInterval();
     }
+}
 
-    desktopCard.style.left = `${cardX}px`;
-    desktopCard.style.top = `${cardY}px`;
-    desktopCard.classList.add('active');
+function updateContent(prefix, data) {
+    const logoImg = document.getElementById(prefix + '-logo');
+    logoImg.src = data.logoSrc;
+    // Apply precise logo size overrides for the card logo
+    logoImg.style.width = data.cardLogoWidth || '160px';
+    logoImg.style.height = 'auto';
+    logoImg.style.maxHeight = 'none';
+    
+    document.getElementById(prefix + '-desc').innerHTML = data.desc; 
+    document.getElementById(prefix + '-link').href = data.link;
+    startSlideshow(prefix, data);
+}
 
-    const controlPointX = hX + (endX - hX) * 0.5;
-    const d = `M ${hX} ${hY} Q ${controlPointX} ${hY} ${endX} ${endY}`;
+function drawConnectorLine(hotspotEl, cardElement, side) {
+    const wRect = wrapper.getBoundingClientRect();
+    const dot = hotspotEl.querySelector('.menu-dot');
+    const dRect = dot.getBoundingClientRect();
+    
+    // Start precisely from the dot
+    const startX = dRect.left - wRect.left + (dRect.width / 2);
+    const startY = dRect.top - wRect.top + (dRect.height / 2);
+    
+    // End at the absolute coordinates calculated for the card
+    const targetLeft = parseFloat(cardElement.style.left);
+    const targetTop = parseFloat(cardElement.style.top);
+    // Force browser to calculate actual height (avoids 0 on first render)
+    const cardHeight = cardElement.offsetHeight || 400; 
+    const cardWidth = 400; 
+
+    let endX;
+    if (side === 'left') {
+        endX = targetLeft + cardWidth;
+    } else {
+        endX = targetLeft;
+    }
+    const endY = targetTop + (cardHeight / 2);
+    
+    const controlOffset = Math.abs(startX - endX) * 0.4;
+    const d = `M ${startX} ${startY} C ${startX - controlOffset} ${startY}, ${endX + controlOffset} ${endY}, ${endX} ${endY}`;
     
     path.setAttribute('d', d);
-    path.setAttribute('stroke', floor.accent);
-    path.classList.add('active');
+
+    // ==========================================
+    // THE DRAWING ANIMATION EFFECT
+    // ==========================================
+    const length = path.getTotalLength();
+    
+    // 1. Instantly reset the stroke to be invisible
+    path.style.transition = 'none'; 
+    path.style.strokeDasharray = length + ' ' + length;
+    path.style.strokeDashoffset = length;
+
+    // 2. Force browser to register the reset before animating
+    path.getBoundingClientRect();
+
+    // 3. Turn transition back on and draw it to 0
+    path.style.transition = 'stroke-dashoffset 0.6s cubic-bezier(0.23, 1, 0.32, 1)';
+    path.style.strokeDashoffset = '0';
 }
 
-function showMobile(floor) {
-    updateContent('m', floor);
+function showDesktop(index) {
+    if(activeIndex === index) return;
+    activeIndex = index;
+    const data = DATA[index];
+    
+    document.querySelectorAll('.hotspot').forEach(m => m.classList.remove('active'));
+    const activeHotspot = document.getElementById(`hotspot-${index}`);
+    activeHotspot.classList.add('active');
+    
+    // 1. Update text and start gallery
+    updateContent('d', data);
+    applyCardStyles(desktopCard, data);
+    
+    // 2. Calculate coordinates for card placement
+    const wRect = wrapper.getBoundingClientRect();
+    const hX = wRect.width * (data.pctLeft / 100);
+    const hY = wRect.height * (data.pctTop / 100);
+
+    const cardWidth = 400;
+    const gap = 140; // Distance from center logo to card
+    let cardX, cardY;
+
+    if (data.side === 'left') {
+        cardX = hX - cardWidth - gap;
+        // Apply transform direction based on side for smooth slide-in
+        desktopCard.style.transform = 'translateX(30px)';
+    } else {
+        cardX = hX + gap;
+        desktopCard.style.transform = 'translateX(-30px)';
+    }
+
+    if (data.vAlign === 'up') {
+        cardY = hY - 300; 
+    } else {
+        cardY = hY - 100; 
+    }
+
+    // Apply custom manual offsets from the DATA array
+    cardX += (data.cardOffsetX || 0);
+    cardY += (data.cardOffsetY || 0);
+
+    // Assign placement & open the card
+    desktopCard.style.left = `${cardX}px`;
+    desktopCard.style.top = `${cardY}px`;
+    
+    // Small delay ensures display is block before calculating line height
+    setTimeout(() => {
+        desktopCard.classList.add('active');
+        
+        // Color the Line dynamically
+        path.setAttribute('stroke', data.textColor === '#1a1a1a' ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.7)');
+        
+        // Trigger drawing animation
+        drawConnectorLine(activeHotspot, desktopCard, data.side);
+    }, 10);
+}
+
+function closeDesktopCard() {
+    if(activeIndex === -1) return;
+    
+    desktopCard.classList.remove('active');
+    
+    // Animate line out backwards
+    if (path.getTotalLength) {
+        const length = path.getTotalLength();
+        path.style.transition = 'stroke-dashoffset 0.4s ease-out';
+        path.style.strokeDashoffset = length;
+    }
+
+    document.querySelectorAll('.hotspot').forEach(m => m.classList.remove('active'));
+    clearInterval(slideInterval);
+    activeIndex = -1;
+}
+
+function showMobile(index) {
+    activeIndex = index;
+    updateMobileContent();
     mobileOverlay.classList.add('active');
     document.body.style.overflow = 'hidden';
+}
+
+function updateMobileContent() {
+    if (activeIndex < 0) activeIndex = DATA.length - 1;
+    if (activeIndex >= DATA.length) activeIndex = 0;
+
+    const data = DATA[activeIndex];
+    updateContent('m', data);
+    applyCardStyles(modalCard, data);
+}
+
+function navigateMobile(direction) {
+    activeIndex += direction;
+    updateMobileContent();
 }
 
 function hideModal() {
     mobileOverlay.classList.remove('active');
     document.body.style.overflow = '';
+    clearInterval(slideInterval);
 }
 
 function closeMobileModal(e) {
     if(e.target === mobileOverlay) hideModal();
 }
 
-window.addEventListener('resize', () => {
-    isMobile = window.innerWidth <= 1100;
-    desktopCard.classList.remove('active');
-    path.classList.remove('active');
-    init(); 
+// Close when mouse leaves the scene
+wrapper.addEventListener('mouseleave', () => {
+    if(!isMobile) closeDesktopCard();
 });
 
-document.addEventListener('mousemove', (e) => {
-    if(!isMobile) {
-        const wrapper = document.getElementById('scene-wrapper');
-        const card = document.getElementById('desktop-card');
-        const rectW = wrapper.getBoundingClientRect();
-        const rectC = card.getBoundingClientRect();
-        
-        const isOverWrapper = e.clientX >= rectW.left && e.clientX <= rectW.right && e.clientY >= rectW.top && e.clientY <= rectW.bottom;
-        const isOverCard = e.clientX >= rectC.left && e.clientX <= rectC.right && e.clientY >= rectC.top && e.clientY <= rectC.bottom;
-        
-        if (!isOverWrapper && !isOverCard) {
-            desktopCard.classList.remove('active');
-            path.classList.remove('active');
-        }
+window.addEventListener('resize', () => {
+    isMobile = window.innerWidth <= 900;
+    if (isMobile) {
+        closeDesktopCard();
+    } else {
+        hideModal();
     }
 });
 
