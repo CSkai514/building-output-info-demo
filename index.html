@@ -185,7 +185,6 @@ body {
     transform: translateX(20px); 
     transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
     box-shadow: 0 40px 80px rgba(0,0,0,0.6);
-    /* REMOVED: backdrop-filter: blur(12px); - This allows the transparent background color to work properly! */
     z-index: 20;
 }
 
@@ -251,7 +250,7 @@ body {
     aspect-ratio: 1 / 1;
     object-fit: cover;
     border-radius: 4px;
-    background: rgba(0,0,0,0.2); /* Fallback for empty images */
+    background: rgba(0,0,0,0.2); 
 }
 
 /* Slider Style */
@@ -353,7 +352,7 @@ body {
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.7); /* slightly darker overlay to pop the card */
+    background: rgba(0,0,0,0.7); 
     z-index: 1000;
     display: flex;
     align-items: center;
@@ -374,7 +373,6 @@ body {
     transform: translateY(30px) scale(0.95);
     transition: var(--transition);
     box-shadow: 0 20px 50px rgba(0,0,0,0.5);
-    /* REMOVED: backdrop-filter: blur(12px); - Let the transparency shine */
 }
 .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
 
@@ -470,11 +468,8 @@ body {
 <script>
 /* ============================================================
    DATA (5 Companies)
-   NEW CUSTOMIZATION PROPERTIES ADDED:
-   - descFont & descFontSize
-   - galleryType: 'grid' (3 boxes) or 'slider'
-   - linkType: 'underline' or 'button'
-   - closeBtnBg & closeBtnColor
+   - Updated linkType back to "button" for all companies.
+   - Set custom btnBg and btnText values to match themes.
 ============================================================ */
 const DATA = [
     {
@@ -492,16 +487,19 @@ const DATA = [
             'assets/interior/Antara/ANTARA_WELLNE_SS_016.jpg'
         ],
         
-        bgGradient: 'rgba(20, 35, 20, 0.91)', // Slightly darker green matching mockup
+        bgGradient: 'rgba(20, 35, 20, 0.91)', 
         textColor: '#ffffff', descColor: 'rgba(255, 255, 255, 0.9)', 
         borderColor: 'rgba(255, 255, 255, 0.2)',
         lineColor: '#20351e',      
         
-        // --- BRAND SPECIFIC DESIGN ---
+        // Custom Pill Button colors
+        btnBg: '#ffffff', 
+        btnText: '#20351E', 
+        
         descFont: "'Playfair Display', serif",
         descFontSize: "17px",
-        galleryType: "slider",    // Changed back to slider
-        linkType: "underline",    // Plain text with underline
+        galleryType: "slider",    
+        linkType: "button",       // Set to pill button!
         closeBtnBg: "#ffffff",
         closeBtnColor: "#000000",
 
@@ -524,14 +522,17 @@ const DATA = [
         ],
         bgGradient: 'rgba(237, 228, 188, 0.91)', 
         textColor: '#1a1a1a', descColor: 'rgba(0, 0, 0, 0.7)', 
-        btnBg: '#1a1a1a', btnText: '#ffffff', borderColor: 'rgba(0, 0, 0, 0.1)',
+        borderColor: 'rgba(0, 0, 0, 0.1)',
         lineColor: '#ede4bc', dotColor: 'rgba(0, 0, 0, 0.3)', dotActiveColor: '#1a1a1a',            
         
-        // --- BRAND SPECIFIC DESIGN ---
+        // Custom Pill Button colors
+        btnBg: '#1a1a1a', 
+        btnText: '#ffffff', 
+        
         descFont: "'Playfair Display', serif",
         descFontSize: "16px",
-        galleryType: "slider",    // Changed back to slider
-        linkType: "underline",
+        galleryType: "slider",    
+        linkType: "button",       // Set to pill button!
         closeBtnBg: "rgba(0,0,0,0.1)",
         closeBtnColor: "#1a1a1a",
 
@@ -554,14 +555,17 @@ const DATA = [
         ],
         bgGradient: 'linear-gradient(135deg, rgba(77,226,222,0.91), rgba(252,253,253,0.91), rgba(239,206,154,0.91), rgba(196,169,219,0.91))', 
         textColor: '#1a1a1a', descColor: 'rgba(0, 0, 0, 0.7)', 
-        btnBg: '#1a1a1a', btnText: '#ffffff', borderColor: 'rgba(0, 0, 0, 0.15)',
+        borderColor: 'rgba(0, 0, 0, 0.15)',
         lineColor: '#4de2de', dotColor: 'rgba(0, 0, 0, 0.4)', dotActiveColor: '#1a1a1a',            
         
-        // --- BRAND SPECIFIC DESIGN ---
+        // Custom Pill Button colors
+        btnBg: '#1a1a1a', 
+        btnText: '#ffffff', 
+        
         descFont: "'Plus Jakarta Sans', sans-serif",
         descFontSize: "14px",
-        galleryType: "slider",   // Keeps the slider
-        linkType: "button",      // Keeps the pill button
+        galleryType: "slider",   
+        linkType: "button",      // Set to pill button!
         closeBtnBg: "rgba(0,0,0,0.1)",
         closeBtnColor: "#1a1a1a",
 
@@ -584,14 +588,17 @@ const DATA = [
         ],
         bgGradient: 'rgba(255, 255, 255, 0.91)', 
         textColor: '#1a1a1a', descColor: 'rgba(0, 0, 0, 0.7)', 
-        btnBg: '#1a1a1a', btnText: '#ffffff', borderColor: 'rgba(0, 0, 0, 0.1)',
+        borderColor: 'rgba(0, 0, 0, 0.1)',
         lineColor: '#ffffff', dotColor: 'rgba(0, 0, 0, 0.3)', dotActiveColor: '#1a1a1a',            
         
-        // --- BRAND SPECIFIC DESIGN ---
+        // Custom Pill Button colors
+        btnBg: '#1a1a1a', 
+        btnText: '#ffffff', 
+        
         descFont: "'Plus Jakarta Sans', sans-serif",
         descFontSize: "14px",
         galleryType: "slider",
-        linkType: "button",
+        linkType: "button",      // Set to pill button!
         closeBtnBg: "rgba(0,0,0,0.1)",
         closeBtnColor: "#1a1a1a",
 
@@ -617,12 +624,15 @@ const DATA = [
         textColor: '#1a1a1a', descColor: 'rgba(20, 40, 20, 0.9)', 
         borderColor: 'rgba(0, 0, 0, 0.1)', lineColor: '#dcefcf',      
         
-        // --- BRAND SPECIFIC DESIGN ---
+        // Custom Pill Button colors - using red theme
+        btnBg: '#e74c3c', 
+        btnText: '#ffffff', 
+        
         descFont: "'Playfair Display', serif",
         descFontSize: "17px",
-        galleryType: "slider",    // Changed back to slider
-        linkType: "underline",
-        closeBtnBg: "#e74c3c",   // Custom Red button from mockup!
+        galleryType: "slider",    
+        linkType: "button",       // Set to pill button!
+        closeBtnBg: "#e74c3c",   
         closeBtnColor: "#ffffff",
 
         pctTop: 83, pctLeft: 79, side: 'left', vAlign: 'up',
