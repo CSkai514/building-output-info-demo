@@ -523,8 +523,6 @@ body {
 <script>
 /* ============================================================
    DATA (5 Companies)
-   - Updated linkType back to "button" for all companies.
-   - Set custom btnBg and btnText values to match themes.
 ============================================================ */
 const DATA = [
     {
@@ -547,14 +545,13 @@ const DATA = [
         borderColor: 'rgba(255, 255, 255, 0.2)',
         lineColor: '#20351e',      
         
-        // Custom Pill Button colors
         btnBg: '#ffffff', 
         btnText: '#20351E', 
         
         descFont: "'Playfair Display', serif",
         descFontSize: "17px",
         galleryType: "slider",    
-        linkType: "button",       // Set to pill button!
+        linkType: "button",
         closeBtnBg: "#ffffff",
         closeBtnColor: "#000000",
 
@@ -580,14 +577,13 @@ const DATA = [
         borderColor: 'rgba(0, 0, 0, 0.1)',
         lineColor: '#ede4bc', dotColor: 'rgba(0, 0, 0, 0.3)', dotActiveColor: '#1a1a1a',            
         
-        // Custom Pill Button colors
         btnBg: '#1a1a1a', 
         btnText: '#ffffff', 
         
         descFont: "'Playfair Display', serif",
         descFontSize: "16px",
         galleryType: "slider",    
-        linkType: "button",       // Set to pill button!
+        linkType: "button",
         closeBtnBg: "rgba(0,0,0,0.1)",
         closeBtnColor: "#1a1a1a",
 
@@ -613,14 +609,13 @@ const DATA = [
         borderColor: 'rgba(0, 0, 0, 0.15)',
         lineColor: '#4de2de', dotColor: 'rgba(0, 0, 0, 0.4)', dotActiveColor: '#1a1a1a',            
         
-        // Custom Pill Button colors
         btnBg: '#1a1a1a', 
         btnText: '#ffffff', 
         
         descFont: "'Plus Jakarta Sans', sans-serif",
         descFontSize: "14px",
         galleryType: "slider",   
-        linkType: "button",      // Set to pill button!
+        linkType: "button",
         closeBtnBg: "rgba(0,0,0,0.1)",
         closeBtnColor: "#1a1a1a",
 
@@ -646,14 +641,13 @@ const DATA = [
         borderColor: 'rgba(0, 0, 0, 0.1)',
         lineColor: '#ffffff', dotColor: 'rgba(0, 0, 0, 0.3)', dotActiveColor: '#1a1a1a',            
         
-        // Custom Pill Button colors
         btnBg: '#1a1a1a', 
         btnText: '#ffffff', 
         
         descFont: "'Plus Jakarta Sans', sans-serif",
         descFontSize: "14px",
         galleryType: "slider",
-        linkType: "button",      // Set to pill button!
+        linkType: "button",
         closeBtnBg: "rgba(0,0,0,0.1)",
         closeBtnColor: "#1a1a1a",
 
@@ -679,14 +673,13 @@ const DATA = [
         textColor: '#1a1a1a', descColor: 'rgba(20, 40, 20, 0.9)', 
         borderColor: 'rgba(0, 0, 0, 0.1)', lineColor: '#dcefcf',      
         
-        // Custom Pill Button colors - using red theme
         btnBg: '#e74c3c', 
         btnText: '#ffffff', 
         
         descFont: "'Playfair Display', serif",
         descFontSize: "17px",
         galleryType: "slider",    
-        linkType: "button",       // Set to pill button!
+        linkType: "button",
         closeBtnBg: "#e74c3c",   
         closeBtnColor: "#ffffff",
 
@@ -706,6 +699,7 @@ const wrapper = document.getElementById('scene-wrapper');
 let isMobile = window.innerWidth <= 900;
 let activeIndex = -1;
 let slideInterval; 
+let drawTimeout; // NEW: Controls the animation timeout to prevent fast-hand glitches
 
 function init() {
     container.innerHTML = '';
@@ -888,6 +882,9 @@ function showDesktop(index) {
     activeIndex = index;
     const data = DATA[index];
     
+    // NEW: Clear any pending animation timers if the user swiped the mouse very fast!
+    clearTimeout(drawTimeout);
+    
     document.querySelectorAll('.hotspot').forEach(m => m.classList.remove('active'));
     const activeHotspot = document.getElementById(`hotspot-${index}`);
     activeHotspot.classList.add('active');
@@ -923,16 +920,20 @@ function showDesktop(index) {
     desktopCard.style.left = `${cardX}px`;
     desktopCard.style.top = `${cardY}px`;
     
-    setTimeout(() => {
+    // Controlled timer allows the DOM image swap to complete flawlessly
+    drawTimeout = setTimeout(() => {
         desktopCard.classList.add('active');
         const strokeColor = data.lineColor || (data.textColor === '#1a1a1a' ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.7)');
         path.setAttribute('stroke', strokeColor);
         drawConnectorLine(activeHotspot, desktopCard, data.side);
-    }, 10);
+    }, 20);
 }
 
 function closeDesktopCard() {
     if(activeIndex === -1) return;
+    
+    // NEW: Stop animations instantly when closing
+    clearTimeout(drawTimeout); 
     
     desktopCard.classList.remove('active');
     if (path.getTotalLength) {
@@ -1002,22 +1003,57 @@ window.addEventListener('resize', () => {
     }
 });
 
-// NEW: Setup the hotspots as soon as HTML is ready so images can start loading...
+
+// ============================================================
+// FULL ASSET PRELOADER (Fixes the "Stuck Logo" cache issue)
+// ============================================================
+let assetsLoaded = false;
+let windowLoaded = false;
+
+function hideLoaderIfReady() {
+    if (assetsLoaded && windowLoaded) {
+        setTimeout(() => {
+            const loader = document.getElementById('loading-screen');
+            if (loader) loader.classList.add('hidden');
+        }, 300); // Small safety delay
+    }
+}
+
+// 1. Gather all dynamic images we need to cache
+const allImagesToPreload = [];
+DATA.forEach(d => {
+    if (d.logoSrc) allImagesToPreload.push(d.logoSrc);
+    if (d.cardLogoSrc) allImagesToPreload.push(d.cardLogoSrc);
+    if (d.images) allImagesToPreload.push(...d.images);
+});
+
+// 2. Preload them seamlessly in the background
+let loadedImagesCount = 0;
+if (allImagesToPreload.length === 0) {
+    assetsLoaded = true;
+} else {
+    allImagesToPreload.forEach(src => {
+        const img = new Image();
+        img.onload = () => { loadedImagesCount++; if (loadedImagesCount >= allImagesToPreload.length) { assetsLoaded = true; hideLoaderIfReady(); } };
+        // If an image fails to load, keep going so the screen doesn't freeze
+        img.onerror = () => { loadedImagesCount++; if (loadedImagesCount >= allImagesToPreload.length) { assetsLoaded = true; hideLoaderIfReady(); } }; 
+        img.src = src;
+    });
+}
+
+// 3. Wait for the main HTML building image and styles to finish loading
+window.addEventListener('load', () => {
+    windowLoaded = true;
+    hideLoaderIfReady();
+});
+
+// Initialize the layout
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
 } else {
     init();
 }
 
-// NEW: Wait for the main page assets (like the background image) to load, then hide the overlay
-window.addEventListener('load', () => {
-    setTimeout(() => {
-        const loader = document.getElementById('loading-screen');
-        if (loader) {
-            loader.classList.add('hidden');
-        }
-    }, 500); // 500ms safety delay ensures all drawing is totally settled
-});
 </script>
 </body>
 </html>
