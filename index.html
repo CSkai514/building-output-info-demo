@@ -107,31 +107,27 @@ body {
 ============================================================ */
 .scene-wrapper {
     position: relative;
-    width: 100%;
-    max-width: 1200px; 
-    height: calc(100vh - 160px); 
-    min-height: 600px; 
+    /* RESPONSIVE UPGRADE: Container scales naturally with the image width */
+    width: 95%;
+    max-width: 1300px; 
     border-radius: 24px;
     box-shadow: 0 40px 100px rgba(0,0,0,0.8);
     overflow: hidden;
-    margin: 0 20px 40px;
+    margin: 0 auto 40px;
 }
 
 .scene-content {
-    position: absolute;
-    inset: 0;
+    position: relative;
     width: 100%;
-    height: 100%;
-    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    /* Prevents inline-block margin gap at the bottom */
+    display: flex; 
 }
 
 #building-img {
-    position: absolute;
-    inset: 0;
     width: 100%;
-    height: 100%;
-    object-fit: cover;
-    object-position: center; 
+    /* RESPONSIVE UPGRADE: Height auto ensures proportional scaling without cropping */
+    height: auto;
+    display: block;
     filter: brightness(0.85) contrast(1.1);
     z-index: 1;
 }
@@ -151,7 +147,7 @@ body {
 
 .connector-line {
     fill: none;
-    stroke-width: 2.5;
+    stroke-width: 2;
     stroke-linecap: round;
     filter: drop-shadow(0 0 5px rgba(255,255,255,0.4));
 }
@@ -221,9 +217,10 @@ body {
 ============================================================ */
 .content-card {
     position: absolute;
-    width: 400px;
+    /* RESPONSIVE UPGRADE: Card automatically shrinks on smaller laptops */
+    width: clamp(300px, 32vw, 420px);
     border-radius: 24px;
-    padding: 35px 40px;
+    padding: clamp(25px, 3vw, 35px) clamp(30px, 3vw, 40px);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -445,22 +442,30 @@ body {
 .nav-arrow.next { right: 15px; }
 
 /* ============================================================
-   RESPONSIVE LOGIC
+   RESPONSIVE LOGIC (MOBILE / TABLET PORTRAIT)
 ============================================================ */
 @media (max-width: 900px) {
     .scene-wrapper {
-        margin: 0 10px 20px;
         width: calc(100% - 20px);
-        height: auto; 
-        min-height: 600px;
+        margin: 0 10px 20px;
+        height: 75vh; 
+        min-height: 550px;
     }
     #line-svg { display: none !important; }
     .content-card { display: none !important; }
 
     .scene-content {
+        position: absolute;
         width: 280%; 
+        height: 100%;
         left: 50%;
         transform: translateX(var(--mobile-center-target));
+    }
+    
+    #building-img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 }
 </style>
@@ -555,8 +560,7 @@ const DATA = [
         closeBtnBg: "#ffffff",
         closeBtnColor: "#000000",
 
-        pctTop: 28, pctLeft: 79, side: 'left', vAlign: 'down',
-        cardOffsetX: -80, cardOffsetY: 0,
+        pctTop: 28, pctLeft: 75, side: 'left',
         mobilePctLeft: 77, mobilePctTop: 28
     },
     {
@@ -587,8 +591,7 @@ const DATA = [
         closeBtnBg: "rgba(0,0,0,0.1)",
         closeBtnColor: "#1a1a1a",
 
-        pctTop: 43, pctLeft: 79, side: 'left', vAlign: 'up',
-        cardOffsetX: -80, cardOffsetY: 0,
+        pctTop: 43, pctLeft: 75, side: 'left',
         mobilePctLeft: 77, mobilePctTop: 43
     },
     {
@@ -619,8 +622,7 @@ const DATA = [
         closeBtnBg: "rgba(0,0,0,0.1)",
         closeBtnColor: "#1a1a1a",
 
-        pctTop: 58, pctLeft: 79, side: 'left', vAlign: 'up',
-        cardOffsetX: -80, cardOffsetY: 0,
+        pctTop: 58, pctLeft: 75, side: 'left',
         mobilePctLeft: 77, mobilePctTop: 58
     },
     {
@@ -651,8 +653,7 @@ const DATA = [
         closeBtnBg: "rgba(0,0,0,0.1)",
         closeBtnColor: "#1a1a1a",
 
-        pctTop: 71, pctLeft: 79, side: 'left', vAlign: 'up',
-        cardOffsetX: -80, cardOffsetY: -100,
+        pctTop: 71, pctLeft: 75, side: 'left',
         mobilePctLeft: 77, mobilePctTop: 71
     },
     {
@@ -683,8 +684,7 @@ const DATA = [
         closeBtnBg: "#e74c3c",   
         closeBtnColor: "#ffffff",
 
-        pctTop: 83, pctLeft: 79, side: 'left', vAlign: 'up',
-        cardOffsetX: -80, cardOffsetY: -80,
+        pctTop: 83, pctLeft: 75, side: 'left',
         mobilePctLeft: 77, mobilePctTop: 83 
     }
 ];
@@ -699,7 +699,7 @@ const wrapper = document.getElementById('scene-wrapper');
 let isMobile = window.innerWidth <= 900;
 let activeIndex = -1;
 let slideInterval; 
-let drawTimeout; // NEW: Controls the animation timeout to prevent fast-hand glitches
+let drawTimeout; 
 
 function init() {
     container.innerHTML = '';
@@ -737,12 +737,10 @@ function applyCardStyles(card, data, prefix) {
     card.style.setProperty('--dot-color', data.dotColor || 'rgba(255,255,255,0.4)');
     card.style.setProperty('--dot-active', data.dotActiveColor || '#ffffff');
 
-    // Apply specific bespoke fonts
     const descEl = document.getElementById(prefix + '-desc');
     descEl.style.fontFamily = data.descFont || "'Plus Jakarta Sans', sans-serif";
     descEl.style.fontSize = data.descFontSize || "14px";
 
-    // Apply close button custom colors
     const closeBtn = document.getElementById(prefix + '-close');
     if (closeBtn) {
         closeBtn.style.background = data.closeBtnBg || "rgba(0,0,0,0.1)";
@@ -760,7 +758,6 @@ function renderGallery(prefix, data) {
     }
 
     if (data.galleryType === 'grid') {
-        // Render 3-box Grid
         let html = `<div class="card-grid">`;
         data.images.slice(0, 3).forEach(img => {
             html += `<img src="${img}" alt="${data.name} Photo" />`;
@@ -769,7 +766,6 @@ function renderGallery(prefix, data) {
         galleryWrapper.innerHTML = html;
         
     } else {
-        // Render Standard Slider
         let html = `<div class="card-slider" id="${prefix}-slider-inner">`;
         html += data.images.map((img, i) => `
             <img src="${img}" class="slide ${i === 0 ? 'active' : ''}" alt="${data.name} Interior" />
@@ -787,7 +783,6 @@ function renderGallery(prefix, data) {
         html += `</div>`;
         galleryWrapper.innerHTML = html;
 
-        // Slider logic
         if (data.images.length > 1) {
             const slider = document.getElementById(prefix + '-slider-inner');
             const slides = slider.querySelectorAll('.slide');
@@ -828,7 +823,6 @@ function updateContent(prefix, data) {
     
     document.getElementById(prefix + '-desc').innerHTML = data.desc; 
     
-    // Switch between Underline text link and Pill button link
     const linkEl = document.getElementById(prefix + '-link');
     linkEl.href = data.link;
     if (data.linkType === 'underline') {
@@ -842,29 +836,26 @@ function updateContent(prefix, data) {
     renderGallery(prefix, data);
 }
 
-function drawConnectorLine(hotspotEl, cardElement, side) {
+function drawConnectorLine(hotspotEl, cardElement) {
     const wRect = wrapper.getBoundingClientRect();
     const dot = hotspotEl.querySelector('.menu-dot');
+    
+    // Safety check just in case dot is missing
+    if (!dot) return;
     const dRect = dot.getBoundingClientRect();
+    const cRect = cardElement.getBoundingClientRect();
     
-    const startX = dRect.left - wRect.left + (dRect.width / 2);
-    const startY = dRect.top - wRect.top + (dRect.height / 2);
-    
-    const targetLeft = parseFloat(cardElement.style.left);
-    const targetTop = parseFloat(cardElement.style.top);
-    const cardHeight = cardElement.offsetHeight || 400; 
-    const cardWidth = 400; 
+    // Point A: Center of the white Hotspot dot (End of the line)
+    const endX = dRect.left - wRect.left + (dRect.width / 2);
+    const endY = dRect.top - wRect.top + (dRect.height / 2);
 
-    let endX;
-    if (side === 'left') {
-        endX = targetLeft + cardWidth;
-    } else {
-        endX = targetLeft;
-    }
-    const endY = targetTop + (cardHeight / 2);
+    // Point B: Right Edge, Middle Height of the Card (Start of the line)
+    const startX = cRect.left - wRect.left + cRect.width;
+    const startY = cRect.top - wRect.top + (cRect.height / 2);
     
+    // Bezier curve calculations for a smooth S-shape
     const controlOffset = Math.abs(startX - endX) * 0.4;
-    const d = `M ${startX} ${startY} C ${startX - controlOffset} ${startY}, ${endX + controlOffset} ${endY}, ${endX} ${endY}`;
+    const d = `M ${startX} ${startY} C ${startX + controlOffset} ${startY}, ${endX - controlOffset} ${endY}, ${endX} ${endY}`;
     
     path.setAttribute('d', d);
 
@@ -882,7 +873,6 @@ function showDesktop(index) {
     activeIndex = index;
     const data = DATA[index];
     
-    // NEW: Clear any pending animation timers if the user swiped the mouse very fast!
     clearTimeout(drawTimeout);
     
     document.querySelectorAll('.hotspot').forEach(m => m.classList.remove('active'));
@@ -892,47 +882,42 @@ function showDesktop(index) {
     updateContent('d', data);
     applyCardStyles(desktopCard, data, 'd');
     
+    // Force layout measurement
+    desktopCard.style.display = 'flex';
+    
     const wRect = wrapper.getBoundingClientRect();
-    const hX = wRect.width * (data.pctLeft / 100);
     const hY = wRect.height * (data.pctTop / 100);
 
-    const cardWidth = 400;
-    const gap = 140; 
-    let cardX, cardY;
+    const cardHeight = desktopCard.offsetHeight || 450;
 
-    if (data.side === 'left') {
-        cardX = hX - cardWidth - gap;
-        desktopCard.style.transform = 'translateX(30px)';
-    } else {
-        cardX = hX + gap;
-        desktopCard.style.transform = 'translateX(-30px)';
+    // RESPONSIVE LOGIC: The card perfectly floats in the left "empty space" 
+    // Increased from 0.08 to 0.18 to move the card closer to the building and shorten the line
+    let cardX = wRect.width * 0.18; 
+
+    // Align the middle of the card with the hotspot dot
+    let cardY = hY - (cardHeight / 2);
+
+    // BOUNDARY CLAMPING: Prevents the card from ever getting pushed off the top/bottom
+    const paddingY = 30;
+    if (cardY < paddingY) cardY = paddingY;
+    if (cardY + cardHeight > wRect.height - paddingY) {
+        cardY = wRect.height - cardHeight - paddingY;
     }
-
-    if (data.vAlign === 'up') {
-        cardY = hY - 300; 
-    } else {
-        cardY = hY - 100; 
-    }
-
-    cardX += (data.cardOffsetX || 0);
-    cardY += (data.cardOffsetY || 0);
 
     desktopCard.style.left = `${cardX}px`;
     desktopCard.style.top = `${cardY}px`;
     
-    // Controlled timer allows the DOM image swap to complete flawlessly
     drawTimeout = setTimeout(() => {
         desktopCard.classList.add('active');
         const strokeColor = data.lineColor || (data.textColor === '#1a1a1a' ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.7)');
         path.setAttribute('stroke', strokeColor);
-        drawConnectorLine(activeHotspot, desktopCard, data.side);
+        drawConnectorLine(activeHotspot, desktopCard);
     }, 20);
 }
 
 function closeDesktopCard() {
     if(activeIndex === -1) return;
     
-    // NEW: Stop animations instantly when closing
     clearTimeout(drawTimeout); 
     
     desktopCard.classList.remove('active');
@@ -1003,7 +988,6 @@ window.addEventListener('resize', () => {
     }
 });
 
-
 // ============================================================
 // FULL ASSET PRELOADER (Fixes the "Stuck Logo" cache issue)
 // ============================================================
@@ -1015,11 +999,10 @@ function hideLoaderIfReady() {
         setTimeout(() => {
             const loader = document.getElementById('loading-screen');
             if (loader) loader.classList.add('hidden');
-        }, 300); // Small safety delay
+        }, 300); 
     }
 }
 
-// 1. Gather all dynamic images we need to cache
 const allImagesToPreload = [];
 DATA.forEach(d => {
     if (d.logoSrc) allImagesToPreload.push(d.logoSrc);
@@ -1027,7 +1010,6 @@ DATA.forEach(d => {
     if (d.images) allImagesToPreload.push(...d.images);
 });
 
-// 2. Preload them seamlessly in the background
 let loadedImagesCount = 0;
 if (allImagesToPreload.length === 0) {
     assetsLoaded = true;
@@ -1035,19 +1017,16 @@ if (allImagesToPreload.length === 0) {
     allImagesToPreload.forEach(src => {
         const img = new Image();
         img.onload = () => { loadedImagesCount++; if (loadedImagesCount >= allImagesToPreload.length) { assetsLoaded = true; hideLoaderIfReady(); } };
-        // If an image fails to load, keep going so the screen doesn't freeze
         img.onerror = () => { loadedImagesCount++; if (loadedImagesCount >= allImagesToPreload.length) { assetsLoaded = true; hideLoaderIfReady(); } }; 
         img.src = src;
     });
 }
 
-// 3. Wait for the main HTML building image and styles to finish loading
 window.addEventListener('load', () => {
     windowLoaded = true;
     hideLoaderIfReady();
 });
 
-// Initialize the layout
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', init);
 } else {
