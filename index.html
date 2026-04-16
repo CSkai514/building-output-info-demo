@@ -11,6 +11,8 @@
 ============================================================ */
 :root {
     --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    /* Centers the background image perfectly on mobile screens */
+    --mobile-center-target: -81%; 
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -58,13 +60,20 @@ body {
     position: relative;
     width: 100%;
     max-width: 1200px; 
-    /* Fits the screen precisely */
     height: calc(100vh - 160px); 
     min-height: 600px; 
     border-radius: 24px;
     box-shadow: 0 40px 100px rgba(0,0,0,0.8);
     overflow: hidden;
     margin: 0 20px 40px;
+}
+
+.scene-content {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
 }
 
 #building-img {
@@ -96,7 +105,6 @@ body {
     stroke-width: 2.5;
     stroke-linecap: round;
     filter: drop-shadow(0 0 5px rgba(255,255,255,0.4));
-    /* Transition is handled by JavaScript for the drawing effect */
 }
 
 /* ============================================================
@@ -119,7 +127,6 @@ body {
     pointer-events: auto;
 }
 
-/* Hit Area for larger hover triggering */
 .hit-area {
     position: absolute;
     top: 50%;
@@ -131,7 +138,6 @@ body {
 .hover-logo {
     object-fit: contain;
     transition: var(--transition);
-    filter: drop-shadow(0 4px 6px rgba(0,0,0,0.6));
     position: relative;
     z-index: 2;
 }
@@ -150,10 +156,10 @@ body {
     z-index: 2;
 }
 
-/* Hover Interaction */
 .hotspot:hover .hover-logo, .hotspot.active .hover-logo {
     transform: scale(1.15);
-    filter: drop-shadow(0 8px 15px rgba(0,0,0,0.9));
+    border-color: rgba(255, 255, 255, 0.3);
+    filter: drop-shadow(0 8px 15px rgba(0,0,0,0.7));
 }
 
 .hotspot:hover .menu-dot, .hotspot.active .menu-dot {
@@ -162,7 +168,7 @@ body {
 }
 
 /* ============================================================
-   CONTENT CARD (Desktop - Absolute Positioned)
+   CONTENT CARD
 ============================================================ */
 .content-card {
     position: absolute;
@@ -176,12 +182,10 @@ body {
     pointer-events: none;
     opacity: 0;
     visibility: hidden;
-    /* Card slides in slightly from the side */
     transform: translateX(20px); 
     transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
     box-shadow: 0 40px 80px rgba(0,0,0,0.6);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    /* REMOVED: backdrop-filter: blur(12px); - This allows the transparent background color to work properly! */
     z-index: 20;
 }
 
@@ -192,26 +196,12 @@ body {
     pointer-events: auto;
 }
 
-/* Dynamic Card Colors */
 .content-card, .modal-content {
     color: var(--card-text, #fff);
     border: 1px solid var(--card-border, rgba(255,255,255,0.15));
 }
 .c-desc {
     color: var(--card-desc, rgba(255,255,255,0.9));
-}
-.c-link {
-    background: var(--card-btn-bg, #fff);
-    color: var(--card-btn-text, #000);
-}
-.close-btn {
-    background: var(--card-border, rgba(0,0,0,0.1));
-    color: var(--card-text, #fff);
-    border-color: var(--card-border, rgba(255,255,255,0.2));
-}
-.close-btn:hover { 
-    background: var(--card-text, #fff); 
-    color: var(--card-btn-bg, #000); 
 }
 
 .close-btn {
@@ -220,11 +210,14 @@ body {
     width: 32px; height: 32px;
     border-radius: 50%;
     font-size: 14px;
+    font-weight: 600;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer;
     transition: all 0.2s;
     z-index: 10;
+    border: none;
 }
+.close-btn:hover { transform: scale(1.1); }
 
 .c-logo-container {
     margin-bottom: 20px;
@@ -234,27 +227,44 @@ body {
 }
 
 .c-desc {
-    font-size: 14px;
-    line-height: 1.7;
+    line-height: 1.5;
     margin-bottom: 25px;
-    font-weight: 400;
 }
 
 /* ============================================================
-   SLIDESHOW GALLERY
+   GALLERIES (GRID vs SLIDER)
 ============================================================ */
+.gallery-wrapper {
+    width: 100%;
+    margin-bottom: 25px;
+}
+
+/* 3-Image Grid Style */
+.card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    width: 100%;
+}
+.card-grid img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    border-radius: 4px;
+    background: rgba(0,0,0,0.2); /* Fallback for empty images */
+}
+
+/* Slider Style */
 .card-slider {
     width: 100%;
     height: 160px;
     position: relative;
     border-radius: 16px;
     overflow: hidden;
-    margin-bottom: 25px;
     background: rgba(0,0,0,0.1);
     box-shadow: inset 0 0 10px rgba(0,0,0,0.2);
     border: 1px solid var(--card-border, rgba(255,255,255,0.1));
 }
-
 .slide {
     position: absolute;
     inset: 0;
@@ -295,30 +305,47 @@ body {
 .slider-dot {
     width: 6px; height: 6px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.4);
+    background: var(--dot-color, rgba(255,255,255,0.4));
     cursor: pointer;
     transition: all 0.3s;
 }
-.slider-dot:hover { background: rgba(255,255,255,0.8); }
-.slider-dot.active { background: #fff; transform: scale(1.3); }
+.slider-dot:hover { background: var(--dot-active, rgba(255,255,255,0.8)); }
+.slider-dot.active { background: var(--dot-active, #fff); transform: scale(1.3); }
 
 /* ============================================================
-   BUTTON
+   LINKS (UNDERLINE vs PILL BUTTON)
 ============================================================ */
 .c-link {
     display: inline-flex;
     align-items: center;
     gap: 8px;
+    text-decoration: none;
+    transition: all 0.3s;
+}
+
+/* Default Pill Button Style */
+.c-link.style-button {
     padding: 14px 32px;
     border-radius: 30px;
     font-weight: 600;
     font-size: 13px;
-    text-decoration: none;
     text-transform: uppercase;
     letter-spacing: 1px;
-    transition: all 0.3s;
+    background: var(--card-btn-bg, #fff);
+    color: var(--card-btn-text, #000);
 }
-.c-link:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+.c-link.style-button:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+
+/* Underlined Text Style */
+.c-link.style-underline {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--card-text, #fff);
+    border-bottom: 1px solid var(--card-text, #fff);
+    padding-bottom: 2px;
+}
+.c-link.style-underline:hover { opacity: 0.7; }
 
 /* ============================================================
    MOBILE MODAL
@@ -326,9 +353,7 @@ body {
 .modal-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,0.8);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
+    background: rgba(0,0,0,0.7); /* slightly darker overlay to pop the card */
     z-index: 1000;
     display: flex;
     align-items: center;
@@ -349,6 +374,7 @@ body {
     transform: translateY(30px) scale(0.95);
     transition: var(--transition);
     box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    /* REMOVED: backdrop-filter: blur(12px); - Let the transparency shine */
 }
 .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
 
@@ -377,11 +403,18 @@ body {
 @media (max-width: 900px) {
     .scene-wrapper {
         margin: 0 10px 20px;
+        width: calc(100% - 20px);
         height: auto; 
         min-height: 600px;
     }
     #line-svg { display: none !important; }
     .content-card { display: none !important; }
+
+    .scene-content {
+        width: 280%; 
+        left: 50%;
+        transform: translateX(var(--mobile-center-target));
+    }
 }
 </style>
 </head>
@@ -393,40 +426,33 @@ body {
 </div>
 
 <div class="scene-wrapper" id="scene-wrapper">
-    <!-- Building Image Background -->
-    <img id="building-img" src="assets/photo_2026-04-16_01-22-11.jpg" alt="Bloom Building" />
+    <div class="scene-content" id="scene-content">
+        <img id="building-img" src="assets/building.png" alt="Bloom Building" />
+        <div id="hotspots-layer"></div>
+    </div>
     
-    <!-- SVG Connector Line -->
     <svg id="line-svg">
         <path id="connector-path" class="connector-line" d=""></path>
     </svg>
 
-    <!-- Hotspots (Logos) Layer -->
-    <div id="hotspots-layer"></div>
-
-    <!-- Desktop Info Card (Absolute Positioned via JS) -->
+    <!-- Desktop Info Card -->
     <div class="content-card" id="desktop-card">
-        <button class="close-btn" onclick="closeDesktopCard()">✕</button>
+        <button class="close-btn" id="d-close" onclick="closeDesktopCard()">✕</button>
         <div class="c-logo-container">
-            <!-- Styling logic applied via Javascript to control width precisely -->
             <img id="d-logo" src="" alt="Company Logo" style="object-fit: contain; max-width: 100%;" />
         </div>
         <p class="c-desc" id="d-desc"></p>
         
-        <!-- SLIDESHOW GALLERY -->
-        <div class="card-slider" id="d-slider"></div>
+        <div class="gallery-wrapper" id="d-gallery"></div>
 
-        <a href="#" target="_blank" class="c-link" id="d-link">
-            Visit Our Website <span>↗</span>
-        </a>
+        <a href="#" target="_blank" id="d-link"></a>
     </div>
 </div>
 
 <!-- Mobile Popup Modal -->
 <div class="modal-overlay" id="mobile-overlay" onclick="closeMobileModal(event)">
     <div class="modal-content" id="modal-card">
-        <!-- Close & Arrows -->
-        <button class="close-btn" onclick="hideModal()" style="top:15px; right:15px;">✕</button>
+        <button class="close-btn" id="m-close" onclick="hideModal()" style="top:15px; right:15px;">✕</button>
         <button class="nav-arrow prev" onclick="navigateMobile(-1)">❮</button>
         <button class="nav-arrow next" onclick="navigateMobile(1)">❯</button>
 
@@ -435,126 +461,173 @@ body {
         </div>
         <p class="c-desc" id="m-desc"></p>
         
-        <!-- SLIDESHOW GALLERY -->
-        <div class="card-slider" id="m-slider"></div>
+        <div class="gallery-wrapper" id="m-gallery"></div>
 
-        <a href="#" target="_blank" class="c-link" id="m-link">
-            Visit Our Website <span>↗</span>
-        </a>
+        <a href="#" target="_blank" id="m-link"></a>
     </div>
 </div>
 
 <script>
 /* ============================================================
    DATA (5 Companies)
-   - You can now adjust `cardOffsetX` and `cardOffsetY` to manually 
-     nudge the popup card's position for each specific logo! 
+   NEW CUSTOMIZATION PROPERTIES ADDED:
+   - descFont & descFontSize
+   - galleryType: 'grid' (3 boxes) or 'slider'
+   - linkType: 'underline' or 'button'
+   - closeBtnBg & closeBtnColor
 ============================================================ */
 const DATA = [
     {
         name: 'Antara Spa & Wellness',
-        logoSrc: 'assets/company_logo/250320-antara-logo.webp', 
-        hotspotLogoWidth: '230px', 
+        logoSrc: 'assets/company_logo/antara.png', 
+        cardLogoSrc: 'assets/company_logo/antara.png', 
+        hotspotLogoWidth: '160px', 
         cardLogoWidth: '160px',    
-        hitAreaWidth: '320px',     
-        hitAreaHeight: '100px',    
+        hitAreaWidth: '320px', hitAreaHeight: '100px',    
         desc: "Antara is a wellness spa for your peaceful escape.<br>A calm pause between life's busy moments.<br>Where relaxation meets renewal.",
         link: 'https://antaraspawellness.com/',
         images: [
-            'https://placehold.co/400x250/20351E/ffffff?text=Antara+Interior+1',
-            'https://placehold.co/400x250/20351E/ffffff?text=Antara+Interior+2',
-            'https://placehold.co/400x250/20351E/ffffff?text=Antara+Interior+3'
+            'assets/interior/Antara/5D3_4427.jpg',
+            'assets/interior/Antara/ANTARA_WELLNE_SS_002.jpg',
+            'assets/interior/Antara/ANTARA_WELLNE_SS_016.jpg'
         ],
-        bgGradient: 'rgba(32, 53, 30, 0.95)', 
+        
+        bgGradient: 'rgba(20, 35, 20, 0.91)', // Slightly darker green matching mockup
         textColor: '#ffffff', descColor: 'rgba(255, 255, 255, 0.9)', 
-        btnBg: '#ffffff', btnText: '#20351E', borderColor: 'rgba(255, 255, 255, 0.2)',
-        pctTop: 28, pctLeft: 51, side: 'left', vAlign: 'down',
-        cardOffsetX: -80, // <-- Nudge card Left/Right (e.g. -50 or 50)
-        cardOffsetY: 0  // <-- Nudge card Up/Down (e.g. -50 or 50)
+        borderColor: 'rgba(255, 255, 255, 0.2)',
+        lineColor: '#20351e',      
+        
+        // --- BRAND SPECIFIC DESIGN ---
+        descFont: "'Playfair Display', serif",
+        descFontSize: "17px",
+        galleryType: "grid",      // Shows 3 boxes side-by-side
+        linkType: "underline",    // Plain text with underline
+        closeBtnBg: "#ffffff",
+        closeBtnColor: "#000000",
+
+        pctTop: 28, pctLeft: 79, side: 'left', vAlign: 'down',
+        cardOffsetX: -80, cardOffsetY: 0,
+        mobilePctLeft: 77, mobilePctTop: 28
     },
     {
         name: 'Cantiq Clinic Signature',
-        logoSrc: 'assets/company_logo/250320-cantiq-logo.webp', 
-        hotspotLogoWidth: '205px', 
-        cardLogoWidth: '170px',    
-        hitAreaWidth: '380px',     
-        hitAreaHeight: '100px',    
+        logoSrc: 'assets/company_logo/cantiq.png', 
+        cardLogoSrc: 'assets/company_logo/cantiq.png',
+        hotspotLogoWidth: '160px', cardLogoWidth: '170px',    
+        hitAreaWidth: '380px', hitAreaHeight: '100px',    
         desc: "Elevate your natural beauty.<br>Glow effortlessly with Cantiq Clinic.<br>Feel Cantik, Be Cantik.",
         link: 'https://cantiqclinic.com/',
         images: [
-            'https://placehold.co/400x250/EDE4BC/1a1a1a?text=Cantiq+Interior+1',
-            'https://placehold.co/400x250/EDE4BC/1a1a1a?text=Cantiq+Interior+2',
-            'https://placehold.co/400x250/EDE4BC/1a1a1a?text=Cantiq+Interior+3'
+            'assets/interior/Cantiq_Signature_Clinic/DSC01733_1.jpg',
+            'assets/interior/Cantiq_Signature_Clinic/DSC02229.jpg',
+            'assets/interior/Cantiq_Signature_Clinic/SlyfirmX_Treatment_Photo.jpg'
         ],
-        bgGradient: 'rgba(237, 228, 188, 0.95)', 
+        bgGradient: 'rgba(237, 228, 188, 0.91)', 
         textColor: '#1a1a1a', descColor: 'rgba(0, 0, 0, 0.7)', 
         btnBg: '#1a1a1a', btnText: '#ffffff', borderColor: 'rgba(0, 0, 0, 0.1)',
-        pctTop: 43, pctLeft: 52, side: 'left', vAlign: 'up',
-        cardOffsetX: -80, 
-        cardOffsetY: 0
+        lineColor: '#ede4bc', dotColor: 'rgba(0, 0, 0, 0.3)', dotActiveColor: '#1a1a1a',            
+        
+        // --- BRAND SPECIFIC DESIGN ---
+        descFont: "'Playfair Display', serif",
+        descFontSize: "16px",
+        galleryType: "grid",
+        linkType: "underline",
+        closeBtnBg: "rgba(0,0,0,0.1)",
+        closeBtnColor: "#1a1a1a",
+
+        pctTop: 43, pctLeft: 79, side: 'left', vAlign: 'up',
+        cardOffsetX: -80, cardOffsetY: 0,
+        mobilePctLeft: 77, mobilePctTop: 43
     },
     {
         name: 'TRIA Dental Specialist',
-        logoSrc: 'assets/company_logo/tria-dental-logo-small-no-bg.png', 
-        hotspotLogoWidth: '95px', 
-        cardLogoWidth: '140px',    
-        hitAreaWidth: '200px',     
-        hitAreaHeight: '100px',    
-        desc: "TRIA Dental Specialist Centre, where a team of highly<br>trained specialists is committed to safeguarding your oral<br>health and enhancing your well-being.",
+        logoSrc: 'assets/company_logo/tria_Asset_1.png', 
+        cardLogoSrc: 'assets/company_logo/tria.png',     
+        hotspotLogoWidth: '95px', cardLogoWidth: '180px',    
+        hitAreaWidth: '200px', hitAreaHeight: '100px',    
+        desc: "TRIA Dental Specialist Centre, where a team of highly trained specialists is committed to safeguarding your oral health and enhancing your well-being",
         link: 'https://triadentalspecialist.com/',
         images: [
-            'https://placehold.co/400x250/4DE2DE/1a1a1a?text=TRIA+Interior+1',
-            'https://placehold.co/400x250/EFCE9A/1a1a1a?text=TRIA+Interior+2',
-            'https://placehold.co/400x250/C4A9DB/1a1a1a?text=TRIA+Interior+3'
+            'assets/interior/Tria_Dental/TRIA_DENTAL_007.jpg',
+            'assets/interior/Tria_Dental/TRIA_DENTAL_010.jpg',
+            'assets/interior/Tria_Dental/TRIA_DENTAL_013.jpg'
         ],
-        bgGradient: 'linear-gradient(135deg, rgba(77,226,222,0.95), rgba(252,253,253,0.95), rgba(239,206,154,0.95), rgba(196,169,219,0.95))', 
+        bgGradient: 'linear-gradient(135deg, rgba(77,226,222,0.91), rgba(252,253,253,0.91), rgba(239,206,154,0.91), rgba(196,169,219,0.91))', 
         textColor: '#1a1a1a', descColor: 'rgba(0, 0, 0, 0.7)', 
         btnBg: '#1a1a1a', btnText: '#ffffff', borderColor: 'rgba(0, 0, 0, 0.15)',
-        pctTop: 58, pctLeft: 52, side: 'left', vAlign: 'up',
-        cardOffsetX: -80, 
-        cardOffsetY: 0
+        lineColor: '#4de2de', dotColor: 'rgba(0, 0, 0, 0.4)', dotActiveColor: '#1a1a1a',            
+        
+        // --- BRAND SPECIFIC DESIGN ---
+        descFont: "'Plus Jakarta Sans', sans-serif",
+        descFontSize: "14px",
+        galleryType: "slider",   // Keeps the slider
+        linkType: "button",      // Keeps the pill button
+        closeBtnBg: "rgba(0,0,0,0.1)",
+        closeBtnColor: "#1a1a1a",
+
+        pctTop: 58, pctLeft: 79, side: 'left', vAlign: 'up',
+        cardOffsetX: -80, cardOffsetY: 0,
+        mobilePctLeft: 77, mobilePctTop: 58
     },
     {
         name: 'Florus Academy',
-        logoSrc: 'https://placehold.co/200x50/FFFFFF/1a1a1a?text=Florus+Logo', 
-        hotspotLogoWidth: '150px', 
-        cardLogoWidth: '160px',    
-        hitAreaWidth: '250px',     
-        hitAreaHeight: '100px',    
-        desc: "Florus Academy is our dedicated training hub, where<br>continuous learning ensures a seamless blend of health,<br>beauty, and wellness for every customer.",
+        logoSrc: 'assets/company_logo/florus_Asset_2.png', 
+        cardLogoSrc: 'assets/company_logo/florus.png',     
+        hotspotLogoWidth: '150px', cardLogoWidth: '160px',    
+        hitAreaWidth: '250px', hitAreaHeight: '100px',    
+        desc: "Florus Academy is our dedicated training hub, where continuous learning ensures a seamless blend of health, beauty, and wellness for every customer.",
         link: 'https://florusacademy.com/',
         images: [
-            'https://placehold.co/400x250/cccccc/1a1a1a?text=Florus+Interior+1',
-            'https://placehold.co/400x250/cccccc/1a1a1a?text=Florus+Interior+2',
-            'https://placehold.co/400x250/cccccc/1a1a1a?text=Florus+Interior+3'
+            'assets/interior/Florus_Academy/DSC02930.jpg',
+            'assets/interior/Florus_Academy/DSC03041.jpg',
+            'assets/interior/Florus_Academy/DSC03043.jpg'
         ],
         bgGradient: 'rgba(255, 255, 255, 0.91)', 
         textColor: '#1a1a1a', descColor: 'rgba(0, 0, 0, 0.7)', 
         btnBg: '#1a1a1a', btnText: '#ffffff', borderColor: 'rgba(0, 0, 0, 0.1)',
-        pctTop: 71, pctLeft: 51, side: 'left', vAlign: 'up',
-        cardOffsetX: -80, 
-        cardOffsetY: 0
+        lineColor: '#ffffff', dotColor: 'rgba(0, 0, 0, 0.3)', dotActiveColor: '#1a1a1a',            
+        
+        // --- BRAND SPECIFIC DESIGN ---
+        descFont: "'Plus Jakarta Sans', sans-serif",
+        descFontSize: "14px",
+        galleryType: "slider",
+        linkType: "button",
+        closeBtnBg: "rgba(0,0,0,0.1)",
+        closeBtnColor: "#1a1a1a",
+
+        pctTop: 71, pctLeft: 79, side: 'left', vAlign: 'up',
+        cardOffsetX: -80, cardOffsetY: -100,
+        mobilePctLeft: 77, mobilePctTop: 71
     },
     {
         name: 'MediPulih',
         logoSrc: 'assets/company_logo/250320-medipulih-logo.webp', 
-        hotspotLogoWidth: '190px', 
-        cardLogoWidth: '160px',    
-        hitAreaWidth: '280px',     
-        hitAreaHeight: '100px',    
-        desc: "Compassionate care, comprehensive screening,<br>personalised treatment, all under one roof.",
+        cardLogoSrc: 'assets/company_logo/250320-medipulih-logo.webp',
+        hotspotLogoWidth: '190px', cardLogoWidth: '160px',    
+        hitAreaWidth: '280px', hitAreaHeight: '100px',    
+        desc: "Compassionate care, comprehensive screening, personalised treatment, and great value for money.<br>Trusted, accessible healthcare for your everyday wellness.",
         link: 'https://klinikmedipulih.com/',
         images: [
-            'https://placehold.co/400x250/dddddd/1a1a1a?text=MediPulih+Interior+1',
-            'https://placehold.co/400x250/dddddd/1a1a1a?text=MediPulih+Interior+2',
-            'https://placehold.co/400x250/dddddd/1a1a1a?text=MediPulih+Interior+3'
+            'assets/interior/Medipulih/MP_Chow_Kit_Interior_1.jpeg',
+            'assets/interior/Medipulih/MP_Chow_Kit_Interior_4.jpeg',
+            'assets/interior/Medipulih/MP_Chow_Kit_Interior_8.jpeg'
         ],
-        bgGradient: 'rgba(255, 255, 255, 0.95)', 
-        textColor: '#1a1a1a', descColor: 'rgba(0, 0, 0, 0.7)', 
-        btnBg: '#1a1a1a', btnText: '#ffffff', borderColor: 'rgba(0, 0, 0, 0.1)',
-        pctTop: 87, pctLeft: 51, side: 'left', vAlign: 'up',
-        cardOffsetX: -80, 
-        cardOffsetY: -80 // <-- Example: Bumped up by 80px so it doesn't fall off the screen
+        
+        bgGradient: 'rgba(220, 239, 207, 0.91)', 
+        textColor: '#1a1a1a', descColor: 'rgba(20, 40, 20, 0.9)', 
+        borderColor: 'rgba(0, 0, 0, 0.1)', lineColor: '#dcefcf',      
+        
+        // --- BRAND SPECIFIC DESIGN ---
+        descFont: "'Playfair Display', serif",
+        descFontSize: "17px",
+        galleryType: "grid",
+        linkType: "underline",
+        closeBtnBg: "#e74c3c",   // Custom Red button from mockup!
+        closeBtnColor: "#ffffff",
+
+        pctTop: 83, pctLeft: 79, side: 'left', vAlign: 'up',
+        cardOffsetX: -80, cardOffsetY: -80,
+        mobilePctLeft: 77, mobilePctTop: 83 
     }
 ];
 
@@ -569,19 +642,18 @@ let isMobile = window.innerWidth <= 900;
 let activeIndex = -1;
 let slideInterval; 
 
-/* Initialize Absolute Logos on Building */
 function init() {
     container.innerHTML = '';
     DATA.forEach((floor, index) => {
         const hs = document.createElement('div');
         hs.className = 'hotspot';
         hs.id = `hotspot-${index}`;
-        hs.style.top = `${floor.pctTop}%`;
-        hs.style.left = `${floor.pctLeft}%`;
+        
+        hs.style.top = isMobile && floor.mobilePctTop !== undefined ? `${floor.mobilePctTop}%` : `${floor.pctTop}%`;
+        hs.style.left = isMobile && floor.mobilePctLeft !== undefined ? `${floor.mobilePctLeft}%` : `${floor.pctLeft}%`;
         
         const dotHTML = `<div class="menu-dot"></div>`;
         
-        // Added the invisible ".hit-area" with settings mapped to your DATA array
         hs.innerHTML = `
             <div class="hit-area" style="width: ${floor.hitAreaWidth || '200px'}; height: ${floor.hitAreaHeight || '100px'};"></div>
             ${floor.side === 'left' ? dotHTML : ''}
@@ -596,87 +668,119 @@ function init() {
     });
 }
 
-function applyCardStyles(card, data) {
+function applyCardStyles(card, data, prefix) {
     card.style.background = data.bgGradient;
     card.style.setProperty('--card-text', data.textColor);
     card.style.setProperty('--card-desc', data.descColor);
-    card.style.setProperty('--card-btn-bg', data.btnBg);
-    card.style.setProperty('--card-btn-text', data.btnText);
+    if(data.btnBg) card.style.setProperty('--card-btn-bg', data.btnBg);
+    if(data.btnText) card.style.setProperty('--card-btn-text', data.btnText);
     card.style.setProperty('--card-border', data.borderColor);
+    card.style.setProperty('--dot-color', data.dotColor || 'rgba(255,255,255,0.4)');
+    card.style.setProperty('--dot-active', data.dotActiveColor || '#ffffff');
+
+    // Apply specific bespoke fonts
+    const descEl = document.getElementById(prefix + '-desc');
+    descEl.style.fontFamily = data.descFont || "'Plus Jakarta Sans', sans-serif";
+    descEl.style.fontSize = data.descFontSize || "14px";
+
+    // Apply close button custom colors
+    const closeBtn = document.getElementById(prefix + '-close');
+    if (closeBtn) {
+        closeBtn.style.background = data.closeBtnBg || "rgba(0,0,0,0.1)";
+        closeBtn.style.color = data.closeBtnColor || "#ffffff";
+    }
 }
 
-function startSlideshow(prefix, data) {
+function renderGallery(prefix, data) {
     clearInterval(slideInterval);
-    const slider = document.getElementById(prefix + '-slider');
+    const galleryWrapper = document.getElementById(prefix + '-gallery');
     
     if (!data.images || data.images.length === 0) {
-        slider.style.display = 'none';
+        galleryWrapper.innerHTML = '';
         return;
     }
-    
-    slider.style.display = 'block';
-    const numSlides = data.images.length;
-    let currentSlide = 0;
 
-    let html = data.images.map((img, i) => `
-        <img src="${img}" class="slide ${i === 0 ? 'active' : ''}" alt="${data.name} Interior" />
-    `).join('');
-    
-    if (numSlides > 1) {
-        html += `
-            <button class="slider-btn prev">❮</button>
-            <button class="slider-btn next">❯</button>
-            <div class="slider-pagination">
-                ${data.images.map((_, i) => `<span class="slider-dot ${i === 0 ? 'active' : ''}"></span>`).join('')}
-            </div>
-        `;
-    }
-    
-    slider.innerHTML = html;
-    
-    if (numSlides > 1) {
-        const slides = slider.querySelectorAll('.slide');
-        const dots = slider.querySelectorAll('.slider-dot');
-        const btnPrev = slider.querySelector('.slider-btn.prev');
-        const btnNext = slider.querySelector('.slider-btn.next');
+    if (data.galleryType === 'grid') {
+        // Render 3-box Grid
+        let html = `<div class="card-grid">`;
+        data.images.slice(0, 3).forEach(img => {
+            html += `<img src="${img}" alt="${data.name} Photo" />`;
+        });
+        html += `</div>`;
+        galleryWrapper.innerHTML = html;
         
-        function goToSlide(n) {
-            slides[currentSlide].classList.remove('active');
-            dots[currentSlide].classList.remove('active');
+    } else {
+        // Render Standard Slider
+        let html = `<div class="card-slider" id="${prefix}-slider-inner">`;
+        html += data.images.map((img, i) => `
+            <img src="${img}" class="slide ${i === 0 ? 'active' : ''}" alt="${data.name} Interior" />
+        `).join('');
+        
+        if (data.images.length > 1) {
+            html += `
+                <button class="slider-btn prev">❮</button>
+                <button class="slider-btn next">❯</button>
+                <div class="slider-pagination">
+                    ${data.images.map((_, i) => `<span class="slider-dot ${i === 0 ? 'active' : ''}"></span>`).join('')}
+                </div>
+            `;
+        }
+        html += `</div>`;
+        galleryWrapper.innerHTML = html;
+
+        // Slider logic
+        if (data.images.length > 1) {
+            const slider = document.getElementById(prefix + '-slider-inner');
+            const slides = slider.querySelectorAll('.slide');
+            const dots = slider.querySelectorAll('.slider-dot');
+            const btnPrev = slider.querySelector('.slider-btn.prev');
+            const btnNext = slider.querySelector('.slider-btn.next');
+            const numSlides = data.images.length;
+            let currentSlide = 0;
             
-            currentSlide = (n + numSlides) % numSlides;
+            function goToSlide(n) {
+                slides[currentSlide].classList.remove('active');
+                dots[currentSlide].classList.remove('active');
+                currentSlide = (n + numSlides) % numSlides;
+                slides[currentSlide].classList.add('active');
+                dots[currentSlide].classList.add('active');
+                resetInterval();
+            }
             
-            slides[currentSlide].classList.add('active');
-            dots[currentSlide].classList.add('active');
+            btnPrev.addEventListener('click', (e) => { e.preventDefault(); goToSlide(currentSlide - 1); });
+            btnNext.addEventListener('click', (e) => { e.preventDefault(); goToSlide(currentSlide + 1); });
+            dots.forEach((dot, i) => dot.addEventListener('click', (e) => { e.preventDefault(); goToSlide(i); }));
+            
+            function resetInterval() {
+                clearInterval(slideInterval);
+                slideInterval = setInterval(() => { goToSlide(currentSlide + 1); }, 3000);
+            }
             resetInterval();
         }
-        
-        btnPrev.addEventListener('click', (e) => { e.preventDefault(); goToSlide(currentSlide - 1); });
-        btnNext.addEventListener('click', (e) => { e.preventDefault(); goToSlide(currentSlide + 1); });
-        dots.forEach((dot, i) => dot.addEventListener('click', (e) => { e.preventDefault(); goToSlide(i); }));
-        
-        function resetInterval() {
-            clearInterval(slideInterval);
-            slideInterval = setInterval(() => {
-                goToSlide(currentSlide + 1);
-            }, 3000);
-        }
-        
-        resetInterval();
     }
 }
 
 function updateContent(prefix, data) {
     const logoImg = document.getElementById(prefix + '-logo');
-    logoImg.src = data.logoSrc;
-    // Apply precise logo size overrides for the card logo
+    logoImg.src = data.cardLogoSrc || data.logoSrc;
     logoImg.style.width = data.cardLogoWidth || '160px';
     logoImg.style.height = 'auto';
     logoImg.style.maxHeight = 'none';
     
     document.getElementById(prefix + '-desc').innerHTML = data.desc; 
-    document.getElementById(prefix + '-link').href = data.link;
-    startSlideshow(prefix, data);
+    
+    // Switch between Underline text link and Pill button link
+    const linkEl = document.getElementById(prefix + '-link');
+    linkEl.href = data.link;
+    if (data.linkType === 'underline') {
+        linkEl.className = 'c-link style-underline';
+        linkEl.innerHTML = 'Visit Our Website';
+    } else {
+        linkEl.className = 'c-link style-button';
+        linkEl.innerHTML = 'Visit Our Website <span>↗</span>';
+    }
+
+    renderGallery(prefix, data);
 }
 
 function drawConnectorLine(hotspotEl, cardElement, side) {
@@ -684,14 +788,11 @@ function drawConnectorLine(hotspotEl, cardElement, side) {
     const dot = hotspotEl.querySelector('.menu-dot');
     const dRect = dot.getBoundingClientRect();
     
-    // Start precisely from the dot
     const startX = dRect.left - wRect.left + (dRect.width / 2);
     const startY = dRect.top - wRect.top + (dRect.height / 2);
     
-    // End at the absolute coordinates calculated for the card
     const targetLeft = parseFloat(cardElement.style.left);
     const targetTop = parseFloat(cardElement.style.top);
-    // Force browser to calculate actual height (avoids 0 on first render)
     const cardHeight = cardElement.offsetHeight || 400; 
     const cardWidth = 400; 
 
@@ -708,20 +809,11 @@ function drawConnectorLine(hotspotEl, cardElement, side) {
     
     path.setAttribute('d', d);
 
-    // ==========================================
-    // THE DRAWING ANIMATION EFFECT
-    // ==========================================
     const length = path.getTotalLength();
-    
-    // 1. Instantly reset the stroke to be invisible
     path.style.transition = 'none'; 
     path.style.strokeDasharray = length + ' ' + length;
     path.style.strokeDashoffset = length;
-
-    // 2. Force browser to register the reset before animating
     path.getBoundingClientRect();
-
-    // 3. Turn transition back on and draw it to 0
     path.style.transition = 'stroke-dashoffset 0.6s cubic-bezier(0.23, 1, 0.32, 1)';
     path.style.strokeDashoffset = '0';
 }
@@ -735,22 +827,19 @@ function showDesktop(index) {
     const activeHotspot = document.getElementById(`hotspot-${index}`);
     activeHotspot.classList.add('active');
     
-    // 1. Update text and start gallery
     updateContent('d', data);
-    applyCardStyles(desktopCard, data);
+    applyCardStyles(desktopCard, data, 'd');
     
-    // 2. Calculate coordinates for card placement
     const wRect = wrapper.getBoundingClientRect();
     const hX = wRect.width * (data.pctLeft / 100);
     const hY = wRect.height * (data.pctTop / 100);
 
     const cardWidth = 400;
-    const gap = 140; // Distance from center logo to card
+    const gap = 140; 
     let cardX, cardY;
 
     if (data.side === 'left') {
         cardX = hX - cardWidth - gap;
-        // Apply transform direction based on side for smooth slide-in
         desktopCard.style.transform = 'translateX(30px)';
     } else {
         cardX = hX + gap;
@@ -763,22 +852,16 @@ function showDesktop(index) {
         cardY = hY - 100; 
     }
 
-    // Apply custom manual offsets from the DATA array
     cardX += (data.cardOffsetX || 0);
     cardY += (data.cardOffsetY || 0);
 
-    // Assign placement & open the card
     desktopCard.style.left = `${cardX}px`;
     desktopCard.style.top = `${cardY}px`;
     
-    // Small delay ensures display is block before calculating line height
     setTimeout(() => {
         desktopCard.classList.add('active');
-        
-        // Color the Line dynamically
-        path.setAttribute('stroke', data.textColor === '#1a1a1a' ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.7)');
-        
-        // Trigger drawing animation
+        const strokeColor = data.lineColor || (data.textColor === '#1a1a1a' ? 'rgba(0,0,0,0.5)' : 'rgba(255,255,255,0.7)');
+        path.setAttribute('stroke', strokeColor);
         drawConnectorLine(activeHotspot, desktopCard, data.side);
     }, 10);
 }
@@ -787,8 +870,6 @@ function closeDesktopCard() {
     if(activeIndex === -1) return;
     
     desktopCard.classList.remove('active');
-    
-    // Animate line out backwards
     if (path.getTotalLength) {
         const length = path.getTotalLength();
         path.style.transition = 'stroke-dashoffset 0.4s ease-out';
@@ -813,7 +894,7 @@ function updateMobileContent() {
 
     const data = DATA[activeIndex];
     updateContent('m', data);
-    applyCardStyles(modalCard, data);
+    applyCardStyles(modalCard, data, 'm');
 }
 
 function navigateMobile(direction) {
@@ -831,13 +912,24 @@ function closeMobileModal(e) {
     if(e.target === mobileOverlay) hideModal();
 }
 
-// Close when mouse leaves the scene
 wrapper.addEventListener('mouseleave', () => {
     if(!isMobile) closeDesktopCard();
 });
 
 window.addEventListener('resize', () => {
+    const wasMobile = isMobile;
     isMobile = window.innerWidth <= 900;
+    
+    if (wasMobile !== isMobile) {
+        DATA.forEach((floor, index) => {
+            const hs = document.getElementById(`hotspot-${index}`);
+            if (hs) {
+                hs.style.top = isMobile && floor.mobilePctTop !== undefined ? `${floor.mobilePctTop}%` : `${floor.pctTop}%`;
+                hs.style.left = isMobile && floor.mobilePctLeft !== undefined ? `${floor.mobilePctLeft}%` : `${floor.pctLeft}%`;
+            }
+        });
+    }
+
     if (isMobile) {
         closeDesktopCard();
     } else {
