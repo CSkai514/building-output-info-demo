@@ -29,6 +29,55 @@ body {
 }
 
 /* ============================================================
+   LOADING SCREEN OVERLAY
+============================================================ */
+#loading-screen {
+    position: fixed;
+    inset: 0;
+    background: #0a0a0a;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.6s ease, visibility 0.6s ease;
+}
+
+#loading-screen.hidden {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.spinner {
+    width: 45px;
+    height: 45px;
+    border: 3px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+.loading-text {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: #fff;
+    text-transform: uppercase;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+}
+
+/* ============================================================
    PAGE HEADER
 ============================================================ */
 .page-header {
@@ -417,6 +466,12 @@ body {
 </style>
 </head>
 <body>
+
+<!-- NEW: Loading Screen Overlay -->
+<div id="loading-screen">
+    <div class="spinner"></div>
+    <div class="loading-text">Loading Experience</div>
+</div>
 
 <div class="page-header">
     <p>subsidiary of Salcon Berhad</p>
@@ -947,7 +1002,22 @@ window.addEventListener('resize', () => {
     }
 });
 
-window.onload = init;
+// NEW: Setup the hotspots as soon as HTML is ready so images can start loading...
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
+}
+
+// NEW: Wait for the main page assets (like the background image) to load, then hide the overlay
+window.addEventListener('load', () => {
+    setTimeout(() => {
+        const loader = document.getElementById('loading-screen');
+        if (loader) {
+            loader.classList.add('hidden');
+        }
+    }, 500); // 500ms safety delay ensures all drawing is totally settled
+});
 </script>
 </body>
 </html>
