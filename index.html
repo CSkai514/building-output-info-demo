@@ -19,8 +19,9 @@
 
 body {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    background: #0a0a0a;
-    color: #fff;
+    /* LIGHT THEME UPGRADE: Changed background to clean white for logo visibility */
+    background: #ffffff;
+    color: #1a1a1a;
     min-height: 100vh;
     display: flex;
     flex-direction: column;
@@ -34,7 +35,8 @@ body {
 #loading-screen {
     position: fixed;
     inset: 0;
-    background: #0a0a0a;
+    /* LIGHT THEME UPGRADE: White loading background */
+    background: #ffffff;
     z-index: 9999;
     display: flex;
     flex-direction: column;
@@ -52,8 +54,9 @@ body {
 .spinner {
     width: 45px;
     height: 45px;
-    border: 3px solid rgba(255, 255, 255, 0.1);
-    border-top-color: #fff;
+    /* LIGHT THEME UPGRADE: Dark spinner */
+    border: 3px solid rgba(0, 0, 0, 0.1);
+    border-top-color: #1a1a1a;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 20px;
@@ -67,7 +70,8 @@ body {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 11px;
     letter-spacing: 3px;
-    color: #fff;
+    /* LIGHT THEME UPGRADE: Dark loading text */
+    color: #1a1a1a;
     text-transform: uppercase;
     animation: pulse 1.5s ease-in-out infinite;
 }
@@ -78,28 +82,20 @@ body {
 }
 
 /* ============================================================
-   PAGE HEADER
+   FLOATING MAIN LOGO (Moved from Page Header)
 ============================================================ */
-.page-header {
-    width: 100%;
-    text-align: center;
-    padding: 2.5rem 1rem 1.5rem;
-    z-index: 10;
-    position: relative;
-}
-.page-header h1 {
-    font-family: 'Playfair Display', serif;
-    font-size: clamp(1.8rem, 4vw, 2.4rem);
-    font-weight: 600;
-    letter-spacing: -0.01em;
-    color: #fff;
-}
-.page-header p {
-    font-size: 11px;
-    color: #999;
-    margin-bottom: 5px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
+.main-logo {
+    position: absolute;
+    top: 6%; /* Positions it nicely in the upper sky */
+    left: 50%;
+    transform: translateX(-50%);
+    max-width: 280px;
+    width: 40%;
+    min-width: 180px;
+    height: auto;
+    object-fit: contain;
+    z-index: 12;
+    pointer-events: none; /* Prevents it from interfering with user clicks */
 }
 
 /* ============================================================
@@ -111,9 +107,10 @@ body {
     width: 95%;
     max-width: 1300px; 
     border-radius: 24px;
-    box-shadow: 0 40px 100px rgba(0,0,0,0.8);
+    /* LIGHT THEME UPGRADE: Softened shadow so it looks elegant on white */
+    box-shadow: 0 30px 60px rgba(0,0,0,0.15);
     overflow: hidden;
-    margin: 0 auto 40px;
+    margin: 40px auto; /* Added top margin to space it from top of page */
 }
 
 .scene-content {
@@ -230,7 +227,8 @@ body {
     visibility: hidden;
     transform: translateX(20px); 
     transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-    box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+    /* LIGHT THEME UPGRADE: Softened shadow */
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
     z-index: 20;
 }
 
@@ -418,7 +416,8 @@ body {
     position: relative;
     transform: translateY(30px) scale(0.95);
     transition: var(--transition);
-    box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    /* LIGHT THEME UPGRADE: Softened shadow */
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
 }
 .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
 
@@ -447,7 +446,7 @@ body {
 @media (max-width: 900px) {
     .scene-wrapper {
         width: calc(100% - 20px);
-        margin: 0 10px 20px;
+        margin: 20px 10px;
         height: 75vh; 
         min-height: 550px;
     }
@@ -472,18 +471,15 @@ body {
 </head>
 <body>
 
-<!-- NEW: Loading Screen Overlay -->
 <div id="loading-screen">
     <div class="spinner"></div>
     <div class="loading-text">Loading Experience</div>
 </div>
 
-<div class="page-header">
-    <p>subsidiary of Salcon Berhad</p>
-    <h1>Bloom Healthcare</h1>
-</div>
-
 <div class="scene-wrapper" id="scene-wrapper">
+    <!-- NEW: Main Logo floating in the middle of the sky -->
+    <img src="assets/company_logo/bloom_logo.png" alt="Bloom Healthcare Group" class="main-logo" />
+
     <div class="scene-content" id="scene-content">
         <img id="building-img" src="assets/building.webp" alt="Bloom Building" />
         <div id="hotspots-layer"></div>
@@ -493,7 +489,6 @@ body {
         <path id="connector-path" class="connector-line" d=""></path>
     </svg>
 
-    <!-- Desktop Info Card -->
     <div class="content-card" id="desktop-card">
         <button class="close-btn" id="d-close" onclick="closeDesktopCard()">✕</button>
         <div class="c-logo-container">
@@ -507,7 +502,6 @@ body {
     </div>
 </div>
 
-<!-- Mobile Popup Modal -->
 <div class="modal-overlay" id="mobile-overlay" onclick="closeMobileModal(event)">
     <div class="modal-content" id="modal-card">
         <button class="close-btn" id="m-close" onclick="hideModal()" style="top:15px; right:15px;">✕</button>
