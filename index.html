@@ -94,11 +94,8 @@ body, html {
     pointer-events: none; 
 }
 
-/* ============================================================
-   SCENE CONTAINER (BACKGROUND IMAGE)
-============================================================ */
+
 .scene-wrapper {
-    /* Locks strictly to the available browser window, above the OS taskbar */
     position: fixed; 
     top: 0;
     bottom: 0;
@@ -718,7 +715,7 @@ function resizeScene() {
         sceneContent.style.top = '0';
         sceneContent.style.left = '50%';
         // Mathematically forces the 75% coordinate (where the logos are) to the exact center of the screen
-        sceneContent.style.transform = 'translateX(-75%)';
+        sceneContent.style.transform = 'translateX(-78%)';
     } else {
         // DESKTOP LOGIC: Standard full cover
         if (screenRatio > imgRatio) {
