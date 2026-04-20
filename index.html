@@ -98,16 +98,19 @@ body, html {
    SCENE CONTAINER (BACKGROUND IMAGE)
 ============================================================ */
 .scene-wrapper {
+    /* Locks strictly to the available browser window, above the OS taskbar */
     position: fixed; 
-    inset: 0;
-    width: 100%; 
-    height: 100%;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
     overflow: hidden;
     background: #d4e5ee;
 }
 
 .scene-content {
     position: absolute;
+    height: 100vh !important;
     /* JS engine will automatically size and center this to cover the viewport perfectly */
 }
 
@@ -715,7 +718,7 @@ function resizeScene() {
         sceneContent.style.top = '0';
         sceneContent.style.left = '50%';
         // Mathematically forces the 75% coordinate (where the logos are) to the exact center of the screen
-        sceneContent.style.transform = 'translateX(-78%)';
+        sceneContent.style.transform = 'translateX(-75%)';
     } else {
         // DESKTOP LOGIC: Standard full cover
         if (screenRatio > imgRatio) {
