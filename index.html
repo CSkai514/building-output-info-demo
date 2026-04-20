@@ -11,22 +11,21 @@
 ============================================================ */
 :root {
     --transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
-    /* Centers the background image perfectly on mobile screens */
-    --mobile-center-target: -81%; 
 }
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-body {
+body, html {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    /* LIGHT THEME UPGRADE: Changed background to clean white for logo visibility */
-    background: #ffffff;
     color: #1a1a1a;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    overflow-x: hidden;
+    /* STRICT FULLSCREEN: Prevents any scrolling and white gaps */
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden; 
+    /* Soft sky color fallback just in case of phone overscroll bounce */
+    background: #d4e5ee; 
 }
 
 /* ============================================================
@@ -35,7 +34,6 @@ body {
 #loading-screen {
     position: fixed;
     inset: 0;
-    /* LIGHT THEME UPGRADE: White loading background */
     background: #ffffff;
     z-index: 9999;
     display: flex;
@@ -54,7 +52,6 @@ body {
 .spinner {
     width: 45px;
     height: 45px;
-    /* LIGHT THEME UPGRADE: Dark spinner */
     border: 3px solid rgba(0, 0, 0, 0.1);
     border-top-color: #1a1a1a;
     border-radius: 50%;
@@ -70,7 +67,6 @@ body {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 11px;
     letter-spacing: 3px;
-    /* LIGHT THEME UPGRADE: Dark loading text */
     color: #1a1a1a;
     text-transform: uppercase;
     animation: pulse 1.5s ease-in-out infinite;
@@ -82,48 +78,42 @@ body {
 }
 
 /* ============================================================
-   FLOATING MAIN LOGO (Moved from Page Header)
+   FLOATING MAIN LOGO
 ============================================================ */
 .main-logo {
     position: absolute;
-    top: 6%; /* Positions it nicely in the upper sky */
+    top: 5vh; 
     left: 50%;
     transform: translateX(-50%);
-    max-width: 280px;
-    width: 40%;
-    min-width: 180px;
+    width: 25%;
+    min-width: 200px;
+    max-width: 320px;
     height: auto;
     object-fit: contain;
     z-index: 12;
-    pointer-events: none; /* Prevents it from interfering with user clicks */
+    pointer-events: none; 
 }
 
 /* ============================================================
    SCENE CONTAINER (BACKGROUND IMAGE)
 ============================================================ */
 .scene-wrapper {
-    position: relative;
-    /* RESPONSIVE UPGRADE: Container scales naturally with the image width */
-    width: 95%;
-    max-width: 1300px; 
-    border-radius: 24px;
-    /* LIGHT THEME UPGRADE: Softened shadow so it looks elegant on white */
-    box-shadow: 0 30px 60px rgba(0,0,0,0.15);
+    position: fixed; 
+    inset: 0;
+    width: 100%; 
+    height: 100%;
     overflow: hidden;
-    margin: 40px auto; /* Added top margin to space it from top of page */
+    background: #d4e5ee;
 }
 
 .scene-content {
-    position: relative;
-    width: 100%;
-    /* Prevents inline-block margin gap at the bottom */
-    display: flex; 
+    position: absolute;
+    /* JS engine will automatically size and center this to cover the viewport perfectly */
 }
 
 #building-img {
     width: 100%;
-    /* RESPONSIVE UPGRADE: Height auto ensures proportional scaling without cropping */
-    height: auto;
+    height: 100%;
     display: block;
     filter: brightness(0.85) contrast(1.1);
     z-index: 1;
@@ -214,7 +204,6 @@ body {
 ============================================================ */
 .content-card {
     position: absolute;
-    /* RESPONSIVE UPGRADE: Card automatically shrinks on smaller laptops */
     width: clamp(300px, 32vw, 420px);
     border-radius: 24px;
     padding: clamp(25px, 3vw, 35px) clamp(30px, 3vw, 40px);
@@ -227,7 +216,6 @@ body {
     visibility: hidden;
     transform: translateX(20px); 
     transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.23, 1, 0.32, 1);
-    /* LIGHT THEME UPGRADE: Softened shadow */
     box-shadow: 0 20px 50px rgba(0,0,0,0.15);
     z-index: 20;
 }
@@ -282,7 +270,6 @@ body {
     margin-bottom: 25px;
 }
 
-/* 3-Image Grid Style */
 .card-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -297,7 +284,6 @@ body {
     background: rgba(0,0,0,0.2); 
 }
 
-/* Slider Style */
 .card-slider {
     width: 100%;
     height: 160px;
@@ -366,7 +352,6 @@ body {
     transition: all 0.3s;
 }
 
-/* Default Pill Button Style */
 .c-link.style-button {
     padding: 14px 32px;
     border-radius: 30px;
@@ -379,7 +364,6 @@ body {
 }
 .c-link.style-button:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
 
-/* Underlined Text Style */
 .c-link.style-underline {
     font-family: 'Plus Jakarta Sans', sans-serif;
     font-size: 18px;
@@ -416,7 +400,6 @@ body {
     position: relative;
     transform: translateY(30px) scale(0.95);
     transition: var(--transition);
-    /* LIGHT THEME UPGRADE: Softened shadow */
     box-shadow: 0 20px 50px rgba(0,0,0,0.15);
 }
 .modal-overlay.active .modal-content { transform: translateY(0) scale(1); }
@@ -441,31 +424,18 @@ body {
 .nav-arrow.next { right: 15px; }
 
 /* ============================================================
-   RESPONSIVE LOGIC (MOBILE / TABLET PORTRAIT)
+   RESPONSIVE LOGIC
 ============================================================ */
 @media (max-width: 900px) {
-    .scene-wrapper {
-        width: calc(100% - 20px);
-        margin: 20px 10px;
-        height: 75vh; 
-        min-height: 550px;
+    .main-logo {
+        top: 6vh; 
+        width: 32%; 
+        min-width: 110px;
+        max-width: 140px; 
     }
+
     #line-svg { display: none !important; }
     .content-card { display: none !important; }
-
-    .scene-content {
-        position: absolute;
-        width: 280%; 
-        height: 100%;
-        left: 50%;
-        transform: translateX(var(--mobile-center-target));
-    }
-    
-    #building-img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-    }
 }
 </style>
 </head>
@@ -477,7 +447,6 @@ body {
 </div>
 
 <div class="scene-wrapper" id="scene-wrapper">
-    <!-- NEW: Main Logo floating in the middle of the sky -->
     <img src="assets/company_logo/bloom_logo.png" alt="Bloom Healthcare Group" class="main-logo" />
 
     <div class="scene-content" id="scene-content">
@@ -554,8 +523,7 @@ const DATA = [
         closeBtnBg: "#ffffff",
         closeBtnColor: "#000000",
 
-        pctTop: 28, pctLeft: 75, side: 'left',
-        mobilePctLeft: 77, mobilePctTop: 28
+        pctTop: 28, pctLeft: 75, side: 'left'
     },
     {
         name: 'Cantiq Clinic Signature',
@@ -585,8 +553,7 @@ const DATA = [
         closeBtnBg: "rgba(0,0,0,0.1)",
         closeBtnColor: "#1a1a1a",
 
-        pctTop: 43, pctLeft: 75, side: 'left',
-        mobilePctLeft: 77, mobilePctTop: 43
+        pctTop: 43, pctLeft: 75, side: 'left'
     },
     {
         name: 'TRIA Dental Specialist',
@@ -616,8 +583,7 @@ const DATA = [
         closeBtnBg: "rgba(0,0,0,0.1)",
         closeBtnColor: "#1a1a1a",
 
-        pctTop: 58, pctLeft: 75, side: 'left',
-        mobilePctLeft: 77, mobilePctTop: 58
+        pctTop: 58, pctLeft: 75, side: 'left'
     },
     {
         name: 'Florus Academy',
@@ -647,8 +613,7 @@ const DATA = [
         closeBtnBg: "rgba(0,0,0,0.1)",
         closeBtnColor: "#1a1a1a",
 
-        pctTop: 71, pctLeft: 75, side: 'left',
-        mobilePctLeft: 77, mobilePctTop: 71
+        pctTop: 71, pctLeft: 75, side: 'left'
     },
     {
         name: 'MediPulih',
@@ -678,8 +643,7 @@ const DATA = [
         closeBtnBg: "#e74c3c",   
         closeBtnColor: "#ffffff",
 
-        pctTop: 83, pctLeft: 75, side: 'left',
-        mobilePctLeft: 77, mobilePctTop: 83 
+        pctTop: 83, pctLeft: 75, side: 'left'
     }
 ];
 
@@ -702,8 +666,8 @@ function init() {
         hs.className = 'hotspot';
         hs.id = `hotspot-${index}`;
         
-        hs.style.top = isMobile && floor.mobilePctTop !== undefined ? `${floor.mobilePctTop}%` : `${floor.pctTop}%`;
-        hs.style.left = isMobile && floor.mobilePctLeft !== undefined ? `${floor.mobilePctLeft}%` : `${floor.pctLeft}%`;
+        hs.style.top = `${floor.pctTop}%`;
+        hs.style.left = `${floor.pctLeft}%`;
         
         const dotHTML = `<div class="menu-dot"></div>`;
         
@@ -719,6 +683,66 @@ function init() {
         
         container.appendChild(hs);
     });
+}
+
+function resizeScene() {
+    const sceneContent = document.getElementById('scene-content');
+    const img = document.getElementById('building-img');
+    
+    if (!img || !img.naturalWidth) return;
+    
+    const imgRatio = img.naturalWidth / img.naturalHeight;
+    const wrapperW = wrapper.clientWidth;
+    const wrapperH = wrapper.clientHeight;
+    const screenRatio = wrapperW / wrapperH;
+    
+    let finalW, finalH;
+    const isMob = window.innerWidth <= 900;
+    
+    if (isMob) {
+        // FULL SCREEN, NO GAPS, MODERATE ZOOM (The "Goldilocks" fix)
+        // 1. We lock the zoom to exactly 3.0x. This is much less than the native 3.5x+ "cover" zoom,
+        // keeping the building elegantly sized without taking up the entire width.
+        finalW = wrapperW * 3.0; 
+        
+        // 2. Based on your iPhone 14 Pro Max testing, 846px is the optimal height.
+        // This sets the exact height of the image frame to keep the building properly proportioned!
+        finalH = 846; 
+        
+        sceneContent.style.width = finalW + 'px';
+        sceneContent.style.height = finalH + 'px';
+        
+        sceneContent.style.top = '0';
+        sceneContent.style.left = '50%';
+        // Mathematically forces the 75% coordinate (where the logos are) to the exact center of the screen
+        sceneContent.style.transform = 'translateX(-78%)';
+    } else {
+        // DESKTOP LOGIC: Standard full cover
+        if (screenRatio > imgRatio) {
+            finalW = wrapperW;
+            finalH = wrapperW / imgRatio;
+        } else {
+            finalH = wrapperH;
+            finalW = wrapperH * imgRatio;
+        }
+        
+        sceneContent.style.width = finalW + 'px';
+        sceneContent.style.height = finalH + 'px';
+        
+        sceneContent.style.top = '50%';
+        sceneContent.style.bottom = 'auto';
+        sceneContent.style.left = '75%';
+        sceneContent.style.transform = 'translate(-75%, -50%)';
+    }
+
+    if (!isMob && activeIndex !== -1) {
+        const activeHotspot = document.getElementById(`hotspot-${activeIndex}`);
+        if (activeHotspot) {
+            placeDesktopCard(activeHotspot);
+            path.style.transition = 'none';
+            drawConnectorLine(activeHotspot, desktopCard);
+        }
+    }
 }
 
 function applyCardStyles(card, data, prefix) {
@@ -834,20 +858,16 @@ function drawConnectorLine(hotspotEl, cardElement) {
     const wRect = wrapper.getBoundingClientRect();
     const dot = hotspotEl.querySelector('.menu-dot');
     
-    // Safety check just in case dot is missing
     if (!dot) return;
     const dRect = dot.getBoundingClientRect();
     const cRect = cardElement.getBoundingClientRect();
     
-    // Point A: Center of the white Hotspot dot (End of the line)
     const endX = dRect.left - wRect.left + (dRect.width / 2);
     const endY = dRect.top - wRect.top + (dRect.height / 2);
 
-    // Point B: Right Edge, Middle Height of the Card (Start of the line)
     const startX = cRect.left - wRect.left + cRect.width;
     const startY = cRect.top - wRect.top + (cRect.height / 2);
     
-    // Bezier curve calculations for a smooth S-shape
     const controlOffset = Math.abs(startX - endX) * 0.4;
     const d = `M ${startX} ${startY} C ${startX + controlOffset} ${startY}, ${endX - controlOffset} ${endY}, ${endX} ${endY}`;
     
@@ -860,6 +880,27 @@ function drawConnectorLine(hotspotEl, cardElement) {
     path.getBoundingClientRect();
     path.style.transition = 'stroke-dashoffset 0.6s cubic-bezier(0.23, 1, 0.32, 1)';
     path.style.strokeDashoffset = '0';
+}
+
+function placeDesktopCard(activeHotspot) {
+    const dot = activeHotspot.querySelector('.menu-dot');
+    const dRect = dot ? dot.getBoundingClientRect() : activeHotspot.getBoundingClientRect();
+    const wRect = wrapper.getBoundingClientRect();
+    
+    const hY = dRect.top - wRect.top + (dRect.height / 2);
+    const cardHeight = desktopCard.offsetHeight || 450;
+    
+    let cardX = wRect.width * 0.38; 
+    let cardY = hY - (cardHeight / 2);
+
+    const paddingY = 30;
+    if (cardY < paddingY) cardY = paddingY;
+    if (cardY + cardHeight > wRect.height - paddingY) {
+        cardY = wRect.height - cardHeight - paddingY;
+    }
+
+    desktopCard.style.left = `${cardX}px`;
+    desktopCard.style.top = `${cardY}px`;
 }
 
 function showDesktop(index) {
@@ -876,30 +917,8 @@ function showDesktop(index) {
     updateContent('d', data);
     applyCardStyles(desktopCard, data, 'd');
     
-    // Force layout measurement
     desktopCard.style.display = 'flex';
-    
-    const wRect = wrapper.getBoundingClientRect();
-    const hY = wRect.height * (data.pctTop / 100);
-
-    const cardHeight = desktopCard.offsetHeight || 450;
-
-    // RESPONSIVE LOGIC: The card perfectly floats in the left "empty space" 
-    // Increased from 0.08 to 0.18 to move the card closer to the building and shorten the line
-    let cardX = wRect.width * 0.18; 
-
-    // Align the middle of the card with the hotspot dot
-    let cardY = hY - (cardHeight / 2);
-
-    // BOUNDARY CLAMPING: Prevents the card from ever getting pushed off the top/bottom
-    const paddingY = 30;
-    if (cardY < paddingY) cardY = paddingY;
-    if (cardY + cardHeight > wRect.height - paddingY) {
-        cardY = wRect.height - cardHeight - paddingY;
-    }
-
-    desktopCard.style.left = `${cardX}px`;
-    desktopCard.style.top = `${cardY}px`;
+    placeDesktopCard(activeHotspot);
     
     drawTimeout = setTimeout(() => {
         desktopCard.classList.add('active');
@@ -930,7 +949,6 @@ function showMobile(index) {
     activeIndex = index;
     updateMobileContent();
     mobileOverlay.classList.add('active');
-    document.body.style.overflow = 'hidden';
 }
 
 function updateMobileContent() {
@@ -949,7 +967,6 @@ function navigateMobile(direction) {
 
 function hideModal() {
     mobileOverlay.classList.remove('active');
-    document.body.style.overflow = '';
     clearInterval(slideInterval);
 }
 
@@ -965,15 +982,7 @@ window.addEventListener('resize', () => {
     const wasMobile = isMobile;
     isMobile = window.innerWidth <= 900;
     
-    if (wasMobile !== isMobile) {
-        DATA.forEach((floor, index) => {
-            const hs = document.getElementById(`hotspot-${index}`);
-            if (hs) {
-                hs.style.top = isMobile && floor.mobilePctTop !== undefined ? `${floor.mobilePctTop}%` : `${floor.pctTop}%`;
-                hs.style.left = isMobile && floor.mobilePctLeft !== undefined ? `${floor.mobilePctLeft}%` : `${floor.pctLeft}%`;
-            }
-        });
-    }
+    resizeScene();
 
     if (isMobile) {
         closeDesktopCard();
@@ -1019,6 +1028,8 @@ if (allImagesToPreload.length === 0) {
 window.addEventListener('load', () => {
     windowLoaded = true;
     hideLoaderIfReady();
+    // Fire resizing once everything is successfully loaded
+    resizeScene(); 
 });
 
 if (document.readyState === 'loading') {
@@ -1026,7 +1037,6 @@ if (document.readyState === 'loading') {
 } else {
     init();
 }
-
 </script>
 </body>
 </html>
