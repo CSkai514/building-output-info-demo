@@ -110,7 +110,7 @@ body, html {
 
 .scene-content {
     position: absolute;
-    height: 100vh !important ;
+    /* JS engine will automatically size and center this to cover the viewport perfectly */
 }
 
 #building-img {
@@ -156,7 +156,7 @@ body, html {
     transform: translate(-50%, -50%); 
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 10px; /* Reduced from 15px for tighter, cleaner visual alignment */
     cursor: pointer;
     pointer-events: auto;
 }
@@ -174,6 +174,7 @@ body, html {
     transition: var(--transition);
     position: relative;
     z-index: 2;
+    display: block; /* Removes inline image bottom gap */
 }
 
 /* LOCATION PIN INDICATOR */
@@ -463,6 +464,10 @@ body, html {
 
     #line-svg { display: none !important; }
     .content-card { display: none !important; }
+    
+    /* CRITICAL FIX: Hides the desktop dot entirely on mobile so tapping 
+       doesn't instantly push the logo out of horizontal alignment! */
+    .menu-dot { display: none !important; } 
 }
 </style>
 </head>
@@ -534,23 +539,23 @@ const DATA = [
             'assets/interior/Antara/ANTARA_WELLNE_SS_002.webp',
             'assets/interior/Antara/ANTARA_WELLNE_SS_016.webp'
         ],
-        
         bgGradient: 'rgba(20, 35, 20, 0.91)', 
         textColor: '#ffffff', descColor: 'rgba(255, 255, 255, 0.9)', 
         borderColor: 'rgba(255, 255, 255, 0.2)',
         lineColor: '#20351e',      
-        
         btnBg: '#ffffff', 
         btnText: '#20351E', 
         
-        descFont: "'Playfair Display', serif",
-        descFontSize: "17px",
+        // STANDARDIZED FONT
+        descFont: "'Plus Jakarta Sans', sans-serif",
+        descFontSize: "14px",
+        
         galleryType: "slider",    
         linkType: "button",
         closeBtnBg: "#ffffff",
         closeBtnColor: "#000000",
-
-        pctTop: 28, pctLeft: 75, side: 'left'
+        pctTop: 28, pctLeft: 75, side: 'left',
+        pinOffsetX: '-15px',
     },
     {
         name: 'Cantiq Clinic Signature',
@@ -569,18 +574,19 @@ const DATA = [
         textColor: '#1a1a1a', descColor: 'rgba(0, 0, 0, 0.7)', 
         borderColor: 'rgba(0, 0, 0, 0.1)',
         lineColor: '#ede4bc', dotColor: 'rgba(0, 0, 0, 0.3)', dotActiveColor: '#1a1a1a',            
-        
         btnBg: '#1a1a1a', 
         btnText: '#ffffff', 
         
-        descFont: "'Playfair Display', serif",
-        descFontSize: "16px",
+        // STANDARDIZED FONT
+        descFont: "'Plus Jakarta Sans', sans-serif",
+        descFontSize: "14px",
+        
         galleryType: "slider",    
         linkType: "button",
         closeBtnBg: "rgba(0,0,0,0.1)",
         closeBtnColor: "#1a1a1a",
-
-        pctTop: 43, pctLeft: 75, side: 'left'
+        pctTop: 43, pctLeft: 75, side: 'left',
+        pinOffsetX: '-15px',
     },
     {
         name: 'TRIA Dental Specialist',
@@ -599,17 +605,23 @@ const DATA = [
         textColor: '#1a1a1a', descColor: 'rgba(0, 0, 0, 0.7)', 
         borderColor: 'rgba(0, 0, 0, 0.15)',
         lineColor: '#4de2de', dotColor: 'rgba(0, 0, 0, 0.4)', dotActiveColor: '#1a1a1a',            
-        
         btnBg: '#1a1a1a', 
         btnText: '#ffffff', 
         
+        // VISUAL TWEAK: Nudge this specific logo up by 3px so the text aligns perfectly with the pin 
+        logoOffsetY: '-3px',
+        // TWEAK 2: Nudge the pin horizontally (X axis) and vertically (Y axis) to align perfectly with the TRIA text
+        pinOffsetX: '-50px',
+        // pinOffsetY: '5px',
+        
+        // STANDARDIZED FONT
         descFont: "'Plus Jakarta Sans', sans-serif",
         descFontSize: "14px",
+        
         galleryType: "slider",   
         linkType: "button",
         closeBtnBg: "rgba(0,0,0,0.1)",
         closeBtnColor: "#1a1a1a",
-
         pctTop: 58, pctLeft: 75, side: 'left'
     },
     {
@@ -629,18 +641,19 @@ const DATA = [
         textColor: '#1a1a1a', descColor: 'rgba(0, 0, 0, 0.7)', 
         borderColor: 'rgba(0, 0, 0, 0.1)',
         lineColor: '#ffffff', dotColor: 'rgba(0, 0, 0, 0.3)', dotActiveColor: '#1a1a1a',            
-        
         btnBg: '#1a1a1a', 
         btnText: '#ffffff', 
         
+        // STANDARDIZED FONT
         descFont: "'Plus Jakarta Sans', sans-serif",
         descFontSize: "14px",
+        
         galleryType: "slider",
         linkType: "button",
         closeBtnBg: "rgba(0,0,0,0.1)",
         closeBtnColor: "#1a1a1a",
-
-        pctTop: 71, pctLeft: 75, side: 'left'
+        pctTop: 71, pctLeft: 75, side: 'left',
+        pinOffsetX: '-25px',
     },
     {
         name: 'MediPulih',
@@ -655,22 +668,22 @@ const DATA = [
             'assets/interior/Medipulih/MP_Chow_Kit_Interior_4.webp',
             'assets/interior/Medipulih/MP_Chow_Kit_Interior_8.webp'
         ],
-        
         bgGradient: 'rgba(220, 239, 207, 0.91)', 
         textColor: '#1a1a1a', descColor: 'rgba(20, 40, 20, 0.9)', 
         borderColor: 'rgba(0, 0, 0, 0.1)', lineColor: '#dcefcf',      
-        
         btnBg: '#e74c3c', 
         btnText: '#ffffff', 
         
-        descFont: "'Playfair Display', serif",
-        descFontSize: "17px",
+        // STANDARDIZED FONT
+        descFont: "'Plus Jakarta Sans', sans-serif",
+        descFontSize: "14px",
+        
         galleryType: "slider",    
         linkType: "button",
         closeBtnBg: "#e74c3c",   
         closeBtnColor: "#ffffff",
-
-        pctTop: 83, pctLeft: 75, side: 'left'
+        pctTop: 83, pctLeft: 75, side: 'left',
+        pinOffsetX: '-5px',
     }
 ];
 
@@ -698,16 +711,19 @@ function init() {
         
         const dotHTML = `<div class="menu-dot"></div>`;
         const pinSVG = `
-            <svg class="location-pin" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <svg class="location-pin" style="position: relative; left: ${floor.pinOffsetX || '0px'}; top: ${floor.pinOffsetY || '0px'};" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                 <path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z" fill="#e74c3c" stroke="#ffffff" stroke-width="1.5"/>
             </svg>
         `;
         
+        // Added a wrapper div around the logo so we can individually nudge misaligned logos up or down (like TRIA)
         hs.innerHTML = `
             <div class="hit-area" style="width: ${floor.hitAreaWidth || '200px'}; height: ${floor.hitAreaHeight || '100px'};"></div>
             ${floor.side === 'left' ? dotHTML : ''}
             ${pinSVG}
-            <img src="${floor.logoSrc}" class="hover-logo" alt="${floor.name}" onerror="this.style.display='none'" style="width: ${floor.hotspotLogoWidth || '150px'}; height: auto; max-width: none; max-height: none;" />
+            <div style="display: flex; align-items: center; margin-top: ${floor.logoOffsetY || '0px'};">
+                <img src="${floor.logoSrc}" class="hover-logo" alt="${floor.name}" onerror="this.style.display='none'" style="width: ${floor.hotspotLogoWidth || '150px'}; height: auto; max-width: none; max-height: none;" />
+            </div>
             ${floor.side === 'right' ? dotHTML : ''}
         `;
         
@@ -748,7 +764,7 @@ function resizeScene() {
         sceneContent.style.top = '0';
         sceneContent.style.left = '50%';
         // Mathematically forces the 75% coordinate (where the logos are) to the exact center of the screen
-        sceneContent.style.transform = 'translateX(-78%)';
+        sceneContent.style.transform = 'translateX(-75%)';
     } else {
         // DESKTOP LOGIC: Standard full cover
         if (screenRatio > imgRatio) {
