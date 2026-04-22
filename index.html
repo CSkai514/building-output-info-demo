@@ -545,8 +545,6 @@ const DATA = [
         lineColor: '#20351e',      
         btnBg: '#ffffff', 
         btnText: '#20351E', 
-        
-        
         descFont: "'Plus Jakarta Sans', sans-serif",
         descFontSize: "14px",
         
@@ -625,7 +623,7 @@ const DATA = [
         hotspotLogoWidth: '150px', cardLogoWidth: '160px',    
         hitAreaWidth: '250px', hitAreaHeight: '100px',    
         desc: "Florus Academy is our dedicated training hub, where continuous learning ensures a seamless blend of health, beauty, and wellness for every customer.",
-        link: 'https://florusacademy.com/',
+        link: '',
         images: [
             'assets/interior/Florus_Academy/DSC02930.webp',
             'assets/interior/Florus_Academy/DSC03041.webp',
@@ -885,13 +883,18 @@ function updateContent(prefix, data) {
     document.getElementById(prefix + '-desc').innerHTML = data.desc; 
     
     const linkEl = document.getElementById(prefix + '-link');
-    linkEl.href = data.link;
-    if (data.linkType === 'underline') {
-        linkEl.className = 'c-link style-underline';
-        linkEl.innerHTML = 'Visit Our Website';
+    if (data.link) {
+        linkEl.style.display = 'inline-flex';
+        linkEl.href = data.link;
+        if (data.linkType === 'underline') {
+            linkEl.className = 'c-link style-underline';
+            linkEl.innerHTML = 'Visit Our Website';
+        } else {
+            linkEl.className = 'c-link style-button';
+            linkEl.innerHTML = 'Visit Our Website <span>↗</span>';
+        }
     } else {
-        linkEl.className = 'c-link style-button';
-        linkEl.innerHTML = 'Visit Our Website <span>↗</span>';
+        linkEl.style.display = 'none';
     }
 
     renderGallery(prefix, data);
